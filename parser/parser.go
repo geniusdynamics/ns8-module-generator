@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"io"
 	"os"
@@ -44,4 +45,39 @@ func ParseDockerCompose(filePath string) (map[string]interface{}, map[string]int
 		Return the services, volumes and networks
 	*/
 	return compose.Services, compose.Volumes, compose.Networks, nil
+}
+
+// ParseServiceContents /*
+func ParseServiceContents(services map[string]interface{}) {
+	/*
+	* Loop through the services
+	 */
+	for name, value := range services {
+		println("Service: ", name)
+		for key1, value1 := range value.(map[string]interface{}) {
+			println("Key: ", key1)
+			fmt.Printf("Value: %v \n", value1)
+		}
+	}
+}
+
+func getImageName() {
+
+}
+
+func ParseVolumeContents(volume map[string]interface{}) {
+	for key, value := range volume {
+		println("Volume: ", key)
+		fmt.Printf("Value: %v \n", value)
+	}
+}
+
+func serviceImages() {
+
+}
+func ParseNetworkContents(network map[string]interface{}) {
+	for key, value := range network {
+		println("Network: ", key)
+		fmt.Printf("Value: %v \n", value)
+	}
 }
