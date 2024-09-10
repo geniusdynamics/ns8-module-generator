@@ -1,0 +1,93 @@
+package processors
+
+import (
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+)
+
+var (
+	TemplateDir = "template"
+	OutputDir   = "output"
+)
+
+// CopyDirectory copies the template directory to the output directory with a progress indicator.
+func CopyDirectory() error {
+	// Create the output directory
+	err := os.MkdirAll(OutputDir, 0755)
+	if err != nil {
+		return fmt.Errorf("error while creating the output directory: %v", err)
+	}
+
+	// Count total number of files and directories to copy
+	var totalItems int
+	err = filepath.WalkDir(TemplateDir, func(_ string, info os.DirEntry, _ error) error {
+		if !info.IsDir() {
+			totalItems++
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("error counting items in the source directory: %v", err)
+	}
+
+	// Initialize progress variables
+	var copiedItems int
+
+	// Function to print progress
+	printProgress := func() {
+		progress := float64(copiedItems) / float64(totalItems) * 100
+		fmt.Printf("\rProgress: %.2f%% (%d/%d)", progress, copiedItems, totalItems)
+	}
+
+	// Walk through the source directory
+	err = filepath.WalkDir(TemplateDir, func(srcPath string, info os.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("error walking through the source directory: %v", err)
+		}
+
+		// Create the destination path
+		relPath, _ := filepath.Rel(TemplateDir, srcPath)
+		dstPath := filepath.Join(OutputDir, relPath)
+
+		if info.IsDir() {
+			// Create directory in the destination
+			err := os.MkdirAll(dstPath, 0755)
+			if err != nil {
+				return fmt.Errorf("failed to create directory %s: %v", dstPath, err)
+			}
+		} else {
+			// Copy file
+			srcFile, err := os.Open(srcPath)
+			if err != nil {
+				return fmt.Errorf("failed to open source file %s: %v", srcPath, err)
+			}
+			defer srcFile.Close()
+
+			dstFile, err := os.Create(dstPath)
+			if err != nil {
+				return fmt.Errorf("failed to create destination file %s: %v", dstPath, err)
+			}
+			defer dstFile.Close()
+
+			_, err = io.Copy(dstFile, srcFile)
+			if err != nil {
+				return fmt.Errorf("failed to copy file content from %s to %s: %v", srcPath, dstPath, err)
+			}
+		}
+
+		// Update progress
+		copiedItems++
+		printProgress()
+		return nil
+	})
+
+	if err != nil {
+		return fmt.Errorf("error copying directory: %v", err)
+	}
+
+	// Complete progress output
+	fmt.Printf("\nCopy complete! %d items copied.\n", copiedItems)
+	return nil
+}
