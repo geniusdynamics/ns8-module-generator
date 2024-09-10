@@ -1,6 +1,7 @@
 package processors
 
 import (
+	"archive/zip"
 	"fmt"
 	"io"
 	"os"
@@ -89,5 +90,61 @@ func CopyDirectory() error {
 
 	// Complete progress output
 	fmt.Printf("\nCopy complete! %d items copied.\n", copiedItems)
+	return nil
+}
+
+// ZipOutput Zip the output directory to a zip file
+func ZipOutput(name string) error {
+	// Create the zip file
+	fmt.Println("Creating zip file...")
+	zipFile, err := os.Create(name)
+	if err != nil {
+		return fmt.Errorf("error creating zip file: %v", err)
+	}
+	defer zipFile.Close()
+	println("Zip file created")
+	zipWrite := zip.NewWriter(zipFile)
+	defer zipWrite.Close()
+
+	// Walk Through the output directory
+	err = filepath.WalkDir(OutputDir, func(path string, info os.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("error walking through the output directory: %v", err)
+		}
+		// Create the file in the zip
+		relPath, _ := filepath.Rel(OutputDir, path)
+		if info.IsDir() {
+			relPath += "/"
+		}
+		zipFile, err := zipWrite.Create(relPath)
+		if err != nil {
+			return fmt.Errorf("error creating file in zip: %v", err)
+		}
+		if info.IsDir() {
+			return nil
+		}
+		// Open the file
+		file, err := os.Open(path)
+		if err != nil {
+			return fmt.Errorf("error opening file: %v", err)
+		}
+		defer file.Close()
+		// Copy the file to the zip
+		_, err = io.Copy(zipFile, file)
+		if err != nil {
+			return fmt.Errorf("error copying file to zip: %v", err)
+		}
+		return nil
+	})
+
+	return nil
+}
+
+// CleanOutputDirectory Clean the output directory
+func CleanOutputDirectory() error {
+	err := os.RemoveAll(OutputDir)
+	if err != nil {
+		return fmt.Errorf("error cleaning output directory: %v", err)
+	}
 	return nil
 }
