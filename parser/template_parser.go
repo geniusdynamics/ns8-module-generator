@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 /*
@@ -26,6 +27,7 @@ func listFiles(folder string) error {
 	})
 }
 
+// SearchFileAndWriteContent Search for a file in a folder and write content to it
 func SearchFileAndWriteContent(folder string, filename string, content string) error {
 	var filePath string
 	/*
@@ -61,4 +63,32 @@ func SearchFileAndWriteContent(folder string, filename string, content string) e
 	fmt.Printf("Content written to file: %s\n", filePath)
 
 	return nil
+}
+
+// SearchFileAndReplaceContent Search for a file in a folder and read content from it and replace placeholders
+func SearchFileAndReplaceContent(folderPath, filename string, replacements map[string]string) error {
+	filePath := folderPath + "/" + filename
+	// Check if the file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return fmt.Errorf("file not found: %s", filename)
+	}
+	// Read the content of the file
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		return fmt.Errorf("error while reading the file: %v", err)
+	}
+	// Convert content to string for processing
+	content := string(fileContent)
+	// Replace placeholders in the content
+	for placeholder, replacement := range replacements {
+		content = strings.ReplaceAll(content, placeholder, replacement)
+	}
+	// Write the content back to the file
+	err = os.WriteFile(filePath, []byte(content), 0644)
+	if err != nil {
+		return fmt.Errorf("error while writing to the file: %v", err)
+	}
+	// return nil
+	return nil
+
 }
