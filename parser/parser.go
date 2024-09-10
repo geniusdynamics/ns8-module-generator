@@ -12,6 +12,19 @@ type Compose struct {
 	Volumes  map[string]interface{} `yaml:"volumes"`
 	Networks map[string]interface{} `yaml:"networks"`
 }
+type Images struct {
+	// An array of images
+	Images []string
+}
+
+// Global variable to hold the images
+var (
+	images Images
+)
+
+func appendImage(image string) {
+	images.Images = append(images.Images, image)
+}
 
 func ParseDockerCompose(filePath string) (map[string]interface{}, map[string]interface{}, map[string]interface{},
 	error) {
@@ -55,14 +68,13 @@ func ParseServiceContents(services map[string]interface{}) {
 	for name, value := range services {
 		println("Service: ", name)
 		for key1, value1 := range value.(map[string]interface{}) {
+			if key1 == "image" {
+				appendImage(value1.(string))
+			}
 			println("Key: ", key1)
 			fmt.Printf("Value: %v \n", value1)
 		}
 	}
-}
-
-func getImageName() {
-
 }
 
 func ParseVolumeContents(volume map[string]interface{}) {
@@ -80,4 +92,9 @@ func ParseNetworkContents(network map[string]interface{}) {
 		println("Network: ", key)
 		fmt.Printf("Value: %v \n", value)
 	}
+}
+
+// GetImages Get all images and return them
+func GetImages() []string {
+	return images.Images
 }
