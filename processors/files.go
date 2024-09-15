@@ -148,3 +148,19 @@ func CleanOutputDirectory() error {
 	}
 	return nil
 }
+
+func ProcessModule(name string) error {
+	err := CopyDirectory()
+	if err != nil {
+		return fmt.Errorf("error copying directory: %v", err)
+	}
+	err = ZipOutput(name + ".zip")
+	if err != nil {
+		return fmt.Errorf("error zipping output: %v", err)
+	}
+	err = CleanOutputDirectory()
+	if err != nil {
+		return fmt.Errorf("error cleaning output directory: %v", err)
+	}
+	return nil
+}
