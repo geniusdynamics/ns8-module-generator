@@ -67,7 +67,7 @@ func SearchFileAndWriteContent(folder string, filename string, content string) e
 
 // SearchFileAndReplaceContent Search for a file in a folder and read content from it and replace placeholders
 func SearchFileAndReplaceContent(folderPath, filename string, replacements map[string]string) error {
-	filePath := folderPath + "/" + filename
+	filePath := filepath.Join(folderPath, filename)
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return fmt.Errorf("file not found: %s", filename)
@@ -90,5 +90,25 @@ func SearchFileAndReplaceContent(folderPath, filename string, replacements map[s
 	}
 	// return nil
 	return nil
+}
 
+// ReplaceInAllFiles Replace placeholders in all files in a directory
+// Such as kickstart which are in all files
+func ReplaceInAllFiles(directory string, replacements map[string]string) error {
+	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		// Process Regular Files
+		if !info.IsDir() {
+			// Call SearchFileAndReplaceContent
+			errr := SearchFileAndReplaceContent(directory, info.Name(), replacements)
+			if errr != nil {
+				return errr
+			}
+			fmt.Printf("Replaced Content in file: %s\n", info.Name())
+		}
+		return nil
+	})
+	return err
 }
