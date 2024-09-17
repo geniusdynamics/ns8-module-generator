@@ -65,7 +65,9 @@ func SearchFileAndWriteContent(folder string, filename string, content string) e
 	return nil
 }
 
-// SearchFileAndReplaceContent Search for a file in a folder and read content from it and replace placeholders
+// SearchFileAndReplaceContent /* SearchFileAndReplaceContent Search for a file in a folder and read content from it and replace placeholders
+// replacements is a map of placeholders and their replacements
+// map[string]string{"{{placeholder}}": "replacement"}
 func SearchFileAndReplaceContent(folderPath, filename string, replacements map[string]string) error {
 	filePath := filepath.Join(folderPath, filename)
 	// Check if the file exists
