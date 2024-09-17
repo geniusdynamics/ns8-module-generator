@@ -149,7 +149,7 @@ func CleanOutputDirectory() error {
 	return nil
 }
 
-func ProcessModule(name string) error {
+func CreateModuleFromTemplateDirectory(name string) error {
 	err := CopyDirectory()
 	if err != nil {
 		return fmt.Errorf("error copying directory: %v", err)
