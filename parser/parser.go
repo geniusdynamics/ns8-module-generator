@@ -98,3 +98,16 @@ func ParseNetworkContents(network map[string]interface{}) {
 func GetImages() []string {
 	return images.Images
 }
+
+// Deal with Docker Compose file
+
+func DockerComposeParser(filename string) {
+	services, volumes, networks, e := ParseDockerCompose(filename)
+	if e != nil {
+		fmt.Printf("Error while parsing docker-compose file: %v", e)
+	}
+	ParseServiceContents(services)
+	ParseVolumeContents(volumes)
+	ParseNetworkContents(networks)
+
+}
