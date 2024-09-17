@@ -8,11 +8,11 @@ import (
 var (
 	HostDefault = "docker.io/"
 	ImageSuffix = "_IMAGE"
-	images      = parser.GetImages()
 )
 
 // GetImagesWithRepository Get Images with repository details and tag
 func GetImagesWithRepository() []string {
+	images := parser.GetImages()
 	// Check if  image has hosting eg, docker.io, ghcr.io etc
 	var imagesWithRepository []string
 	for _, image := range images {
@@ -32,6 +32,7 @@ func GetImagesWithRepository() []string {
 // FormatImageNames Convert the Images into a UPPERCASE string and return it as array
 func FormatImageNames() []string {
 	var formattedImages []string
+	images := parser.GetImages()
 	for _, image := range images {
 		parts := strings.Split(image, ":")
 		imageName := parts[0]
