@@ -68,11 +68,13 @@ func SearchFileAndWriteContent(folder string, filename string, content string) e
 // SearchFileAndReplaceContent /* SearchFileAndReplaceContent Search for a file in a folder and read content from it and replace placeholders
 // replacements is a map of placeholders and their replacements
 // map[string]string{"{{placeholder}}": "replacement"}
-func SearchFileAndReplaceContent(folderPath, filename string, replacements map[string]string) error {
-	filePath := filepath.Join(folderPath, filename)
+func SearchFileAndReplaceContent(
+	filePath string,
+	replacements map[string]string,
+) error {
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return fmt.Errorf("file not found: %s", filename)
+		return fmt.Errorf("File Path does not exist: %s", filePath)
 	}
 	// Read the content of the file
 	fileContent, err := os.ReadFile(filePath)
@@ -85,7 +87,7 @@ func SearchFileAndReplaceContent(folderPath, filename string, replacements map[s
 	for placeholder, replacement := range replacements {
 		content = strings.ReplaceAll(content, placeholder, replacement)
 	}
-	// Write the content back to the file
+	// Write the content bak to the file
 	err = os.WriteFile(filePath, []byte(content), 0644)
 	if err != nil {
 		return fmt.Errorf("error while writing to the file: %v", err)
@@ -103,12 +105,14 @@ func ReplaceInAllFiles(directory string, replacements map[string]string) error {
 		}
 		// Process Regular Files
 		if !info.IsDir() {
+			fmt.Println("The file content of: " + path + " Are being replaced")
 			// Call SearchFileAndReplaceContent
-			errr := SearchFileAndReplaceContent(directory, info.Name(), replacements)
+			errr := SearchFileAndReplaceContent(path, replacements)
 			if errr != nil {
+				fmt.Printf("An error occurred: %v", errr)
 				return errr
 			}
-			fmt.Printf("Replaced Content in file: %s\n", info.Name())
+			fmt.Printf("Replaced Content in file: %s\n", path)
 		}
 		return nil
 	})

@@ -1,0 +1,3 @@
+IMAGE_NAME = The image name of the repository
+IMAGES = Images used in the repository
+GITHUB_OWNER = The owner of the repository

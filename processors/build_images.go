@@ -7,9 +7,7 @@ import (
 	"strings"
 )
 
-var (
-	OutputDirectory = "output"
-)
+var OutputDirectory = "output"
 
 func ProcessBuildImage() error {
 	images := formatters.GetImagesWithRepository()
@@ -18,7 +16,8 @@ func ProcessBuildImage() error {
 		"{{ GITHUB_OWNER }}": "geniusdynamics",
 		"{{ IMAGES }}":       strings.Join(images, " "),
 	}
-	err := parser.SearchFileAndReplaceContent(OutputDir, "build-images.sh", replacers)
+	filePath := OutputDir + "build-images.sh"
+	err := parser.SearchFileAndReplaceContent(filePath, replacers)
 	if err != nil {
 		return fmt.Errorf("error while replacing content in the file: %v", err)
 	}
