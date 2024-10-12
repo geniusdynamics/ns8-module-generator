@@ -16,13 +16,9 @@ func ProcessNs8Module() {
 	if err != nil {
 		fmt.Printf("error while processing build image: %v", err)
 	}
-	replacers := map[string]string{
-		"kickstart": "nginx",
-	}
-	fmt.Println(replacers)
-	err = parser.ReplaceInAllFiles("output", replacers)
-	if err != nil {
-		fmt.Printf("Error while replacing contents %v", err)
-	}
 
+	err = ReplaceAllKickstart("nginx1")
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+	}
 }
