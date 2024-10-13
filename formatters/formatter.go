@@ -49,3 +49,30 @@ func FormatImageNames() []string {
 	}
 	return formattedImages
 }
+
+func stripImageName(imageName string) string {
+	// Split Parts by Colon
+	parts := strings.Split(imageName, ":")
+	// Get Image name
+	nameParts := strings.Split(parts[0], "/")
+	var name string
+	// Check length of nameParts
+	if len(nameParts) > 1 {
+		name = strings.ToLower(nameParts[len(nameParts)-1])
+	} else {
+		name = strings.ToLower(parts[0])
+	}
+	return name
+}
+
+func GetImagesCompatibleServiceNames() []string {
+	var serviceNames []string
+	images := parser.GetImages()
+	for _, image := range images {
+		// Format Image name to lower case
+		imageName := stripImageName(image)
+		// Append to serviceNames
+		serviceNames = append(serviceNames, imageName)
+	}
+	return serviceNames
+}
