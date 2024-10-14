@@ -10,20 +10,20 @@ import (
 
 type ServiceFile struct {
 	// Unit
-	Description string
-	Requires    string
-	Before      string
+	Description string `json:"description,omitempty"`
+	Requires    string `json:"requires,omitempty"`
+	Before      string `json:"before,omitempty"`
 	// Service
-	ExecStartPre    string
-	ExecStart       string
-	ExecStop        string
-	ExecStopPost    string
-	PIDFile         string
-	Restart         string
-	TimeoutStopSec  string
-	EnvironmentFile string
-	Type            string
-	PublishPort     string
+	ExecStartPre    string `json:"exec_start_pre,omitempty"`
+	ExecStart       string `json:"exec_start,omitempty"`
+	ExecStop        string `json:"exec_stop,omitempty"`
+	ExecStopPost    string `json:"exec_stop_post,omitempty"`
+	PIDFile         string `json:"pid_file,omitempty"`
+	Restart         string `json:"restart,omitempty"`
+	TimeoutStopSec  string `json:"timeout_stop_sec,omitempty"`
+	EnvironmentFile string `json:"environment_file,omitempty"`
+	Type            string `json:"type,omitempty"`
+	PublishPort     string `json:"publish_port,omitempty"`
 }
 
 //	func assignField(service *ServiceFile, line string) {
@@ -77,6 +77,7 @@ func readServiceFileContents(filePath string) (string, error) {
 	return contents.String(), nil
 }
 
+// readServiceFile function  
 func readServiceFile(filePath string) (*ServiceFile, error) {
 	serviceFile, e := os.Open(filePath)
 	if e != nil {
@@ -147,17 +148,30 @@ func readServiceFile(filePath string) (*ServiceFile, error) {
 	return service, nil
 }
 
+// GenerateMainService function  
 func GenerateMainService() {
-	// appName := APP_NAME
 	// Read the main Service file
 
 	// Read The Service file
-	// service, e := readServiceFileContents("./template/imageroot/systemd/user/kickstart.service")
-	// if e != nil {
-	// 	fmt.Printf("An error occurred: %v", e)
-	// }
+	service, e := readServiceFileContents(OutputDir + "/imageroot/systemd/user/kickstart.service")
+	if e != nil {
+		fmt.Printf("An error occurred: %v", e)
+	}
 	images := formatters.GetImagesCompatibleServiceNames()
 	fmt.Printf("All Images: %v", images)
 	// Replacers
-	// replacers := map[string]string{}
+	replacers := map[string]string{
+		"{{ SERVICE_NAME }}":      APP_NAME,
+		"{{ REQUIRED_SERVICES }}": "",
+		"{{ BEFORE_SERVICES }}":   "",
+	}
+}
+
+func writeServiceFile(content string, fileName string) error {
+	filePath := OutputDir + "/imageroot/systemd/user/" + fileName
+	err := os.WriteFile(filePath, []byte(content), 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }
