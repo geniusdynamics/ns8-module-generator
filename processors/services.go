@@ -159,11 +159,23 @@ func GenerateMainService() {
 	}
 	images := formatters.GetImagesCompatibleServiceNames()
 	fmt.Printf("All Images: %v", images)
+
+	// Generete required services
+	requiredServices := generateRequiredServices(images)
+	fmt.Printf("All required Services: %v", requiredServices)
 	// Replacers
 	replacers := map[string]string{
 		"{{ SERVICE_NAME }}":      APP_NAME,
-		"{{ REQUIRED_SERVICES }}": "",
-		"{{ BEFORE_SERVICES }}":   "",
+		"{{ REQUIRED_SERVICES }}": generateRequiredServices(images),
+		"{{ BEFORE_SERVICES }}":   generateRequiredServices(images),
+	}
+	formattedContent := formatters.ReplacePlaceHolders(service, replacers)
+	print(formattedContent)
+
+	err := writeServiceFile(formattedContent, APP_NAME+".service")
+	if err != nil {
+		fmt.Printf("An error occurred while writing to service: %v", err)
+		return
 	}
 }
 
@@ -174,4 +186,12 @@ func writeServiceFile(content string, fileName string) error {
 		return err
 	}
 	return nil
+}
+
+func generateRequiredServices(images []string) string {
+	services := ""
+	for index := range images {
+		services += images[index] + "-app.service "
+	}
+	return services
 }

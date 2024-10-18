@@ -5,6 +5,8 @@ import (
 	"ns8-module-generator/parser"
 )
 
+var APP_NAME = "nginx"
+
 func ProcessNs8Module() {
 	// Create a temp Directory
 	err := CopyDirectory()
@@ -21,4 +23,5 @@ func ProcessNs8Module() {
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 	}
+	GenerateMainService()
 }

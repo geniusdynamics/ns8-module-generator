@@ -76,3 +76,11 @@ func GetImagesCompatibleServiceNames() []string {
 	}
 	return serviceNames
 }
+
+func ReplacePlaceHolders(content string, placeholders map[string]string) string {
+	formattedContent := string(content)
+	for placeholder, replacer := range placeholders {
+		formattedContent = strings.ReplaceAll(formattedContent, placeholder, replacer)
+	}
+	return formattedContent
+}
