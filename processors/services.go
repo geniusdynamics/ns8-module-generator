@@ -165,11 +165,13 @@ func GenerateMainService() {
 	// Generete required services
 	requiredServices := generateRequiredServices(images)
 	fmt.Printf("All required Services: %v", requiredServices)
+
+	allServices := generateRequiredServices(images)
 	// Replacers
 	replacers := map[string]string{
 		"{{ SERVICE_NAME }}":      APP_NAME,
-		"{{ REQUIRED_SERVICES }}": generateRequiredServices(images),
-		"{{ BEFORE_SERVICES }}":   generateRequiredServices(images),
+		"{{ REQUIRED_SERVICES }}": allServices,
+		"{{ BEFORE_SERVICES }}":   allServices,
 	}
 	formattedContent := formatters.ReplacePlaceHolders(service, replacers)
 	print(formattedContent)
@@ -179,10 +181,10 @@ func GenerateMainService() {
 		fmt.Printf("An error occurred while writing to service: %v", err)
 		return
 	}
-	GenerateServicesFiles()
+	GenerateServicesFiles(allServices)
 }
 
-func GenerateServicesFiles() {
+func GenerateServicesFiles(allServices string) {
 	serviceContent, e := readServiceFileContents(
 		OutputDir + "/imageroot/systemd/user/kickstart-app.service",
 	)
@@ -199,6 +201,11 @@ func GenerateServicesFiles() {
 			"{{ IMAGE_NAME }}":        formatters.ImageNameWithSuffix(service.Image),
 			"{{ OTHER_COMMANDS }}":    "",
 			"{{ VOLUMES }}":           generators.GenerateNS8VolumeFlags(service.Volumes),
+			"{{ AFTER_SERVICES }}": generators.GenerateNS8AfterServices(
+				service.DependsOn,
+				allServices,
+				APP_NAME+".service",
+			),
 		}
 		formattedServiceContent := formatters.ReplacePlaceHolders(serviceContent, replacers)
 		print(formattedServiceContent)

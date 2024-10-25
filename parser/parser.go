@@ -20,10 +20,10 @@ type Images struct {
 
 type Service struct {
 	Name        string
-	Image       string                       `yaml:"image"`
-	Environment []string                     `yaml:"environment"`
-	DependsOn   map[string]map[string]string `yaml:"depends_on,omitempty"`
-	Volumes     []string                     `yaml:"volumes,omitempty"`
+	Image       string      `yaml:"image"`
+	Environment []string    `yaml:"environment"`
+	DependsOn   interface{} `yaml:"depends_on,omitempty"`
+	Volumes     []string    `yaml:"volumes,omitempty"`
 }
 
 // Global variable to hold the images
