@@ -7,6 +7,6 @@ ENV_FILES = The env files
 OTHER_COMMANDS =After commands 
 MAIN_SERVICE_NAME = The name of the main service 
 BINDS_TO_SERVICES = The Services which the service binds to Dependants
-AFTER_TO_SERVICES = The services which the service starts running after 
+AFTER_SERVICES = The services which the service starts running after 
 BEFORE_SERVICES = Services whch should run after this service
 REQUIRED_SERVICES = This impliments the requires Services

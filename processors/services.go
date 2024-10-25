@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"ns8-module-generator/formatters"
+	"ns8-module-generator/generators"
+	"ns8-module-generator/parser"
 	"os"
 	"strings"
 )
@@ -176,6 +178,30 @@ func GenerateMainService() {
 	if err != nil {
 		fmt.Printf("An error occurred while writing to service: %v", err)
 		return
+	}
+	GenerateServicesFiles()
+}
+
+func GenerateServicesFiles() {
+	serviceContent, e := readServiceFileContents(
+		OutputDir + "/imageroot/systemd/user/kickstart-app.service",
+	)
+	if e != nil {
+		fmt.Printf("An error occurred reading kickstart-app.service: %v", e)
+		return
+	}
+	for _, service := range *parser.GetServices() {
+		fmt.Printf("Name Of Service: %v\n", service.Name)
+		fmt.Printf("Services that depends on: %v \n", service.DependsOn)
+		replacers := map[string]string{
+			"{{ SERVICE_NAME }}":      service.Name + "-app",
+			"{{ MAIN_SERVICE_NAME }}": APP_NAME,
+			"{{ IMAGE_NAME }}":        formatters.ImageNameWithSuffix(service.Image),
+			"{{ OTHER_COMMANDS }}":    "",
+			"{{ VOLUMES }}":           generators.GenerateNS8VolumeFlags(service.Volumes),
+		}
+		formattedServiceContent := formatters.ReplacePlaceHolders(serviceContent, replacers)
+		print(formattedServiceContent)
 	}
 }
 

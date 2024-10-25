@@ -16,7 +16,7 @@ func ProcessBuildImage() error {
 		"{{ GITHUB_OWNER }}": "geniusdynamics",
 		"{{ IMAGES }}":       strings.Join(images, " "),
 	}
-	filePath := OutputDir + "build-images.sh"
+	filePath := OutputDir + "/build-images.sh"
 	err := parser.SearchFileAndReplaceContent(filePath, replacers)
 	if err != nil {
 		return fmt.Errorf("error while replacing content in the file: %v", err)
