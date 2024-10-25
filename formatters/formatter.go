@@ -50,7 +50,8 @@ func FormatImageNames() []string {
 	return formattedImages
 }
 
-func stripImageName(imageName string) string {
+// This returns a single image name without the : eg documenso/documenso:latest returns ducumenso
+func StripImageName(imageName string) string {
 	// Split Parts by Colon
 	parts := strings.Split(imageName, ":")
 	// Get Image name
@@ -65,12 +66,18 @@ func stripImageName(imageName string) string {
 	return name
 }
 
+// Return Image Name with suffix of _IMAGE
+func ImageNameWithSuffix(imageName string) string {
+	// Name in UPPERCASE
+	return strings.ToUpper(StripImageName(imageName)) + ImageSuffix
+}
+
 func GetImagesCompatibleServiceNames() []string {
 	var serviceNames []string
 	images := parser.GetImages()
 	for _, image := range images {
 		// Format Image name to lower case
-		imageName := stripImageName(image)
+		imageName := StripImageName(image)
 		// Append to serviceNames
 		serviceNames = append(serviceNames, imageName)
 	}
