@@ -206,6 +206,7 @@ func GenerateServicesFiles(allServices string) {
 				allServices,
 				APP_NAME+".service",
 			),
+			"{{ BINDS_TO_SERVICES }}": APP_NAME + "service",
 		}
 		formattedServiceContent := formatters.ReplacePlaceHolders(serviceContent, replacers)
 		print(formattedServiceContent)
