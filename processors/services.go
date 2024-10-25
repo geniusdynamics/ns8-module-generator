@@ -210,6 +210,14 @@ func GenerateServicesFiles(allServices string) {
 		}
 		formattedServiceContent := formatters.ReplacePlaceHolders(serviceContent, replacers)
 		print(formattedServiceContent)
+		// Save the service file
+		e = writeServiceFile(formattedServiceContent, service.Name+"-app.service")
+		if e != nil {
+			fmt.Errorf(
+				"An error occurred while saving service file: %v \n",
+				service.Name+"-app.service",
+			)
+		}
 	}
 }
 
