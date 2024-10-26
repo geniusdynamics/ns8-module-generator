@@ -6,5 +6,4 @@ import (
 
 func main() {
 	processors.ProcessNs8Module()
-
 }

@@ -194,7 +194,7 @@ func GenerateServicesFiles(allServices string) {
 	}
 	for _, service := range *parser.GetServices() {
 		fmt.Printf("Name Of Service: %v\n", service.Name)
-		fmt.Printf("Services that depends on: %v \n", service.DependsOn)
+		fmt.Printf("Enviroment : %v \n", service.Environment)
 		replacers := map[string]string{
 			"{{ SERVICE_NAME }}":      service.Name + "-app",
 			"{{ MAIN_SERVICE_NAME }}": APP_NAME,
@@ -217,6 +217,14 @@ func GenerateServicesFiles(allServices string) {
 				"An error occurred while saving service file: %v \n",
 				service.Name+"-app.service",
 			)
+		}
+		err := generators.GenerateEnvFileContents(
+			service.Name,
+			service.Environment,
+			OutputDir+"/imageroot/actions/configure-module/10configure_environment_vars",
+		)
+		if err != nil {
+			fmt.Printf("An error occurred: %v", err)
 		}
 	}
 }
