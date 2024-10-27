@@ -7,11 +7,15 @@ import (
 )
 
 // Handle env from the envrioment service
-func GenerateEnvFileContents(imageName string, enviroments []string, filePath string) error {
+func GenerateEnvFileContents(
+	imageName string,
+	enviroments []string,
+	filePath string,
+) (string, error) {
 	println("Image Name Enviroment: " + imageName + " filePath: " + filePath)
 	// Write to configure vars all variables as per now
 	var vars strings.Builder
-	envConfig := imageName + " = { \n"
+	envConfig := fmt.Sprintf("%s = { \n", imageName)
 	// Loop thru the enviroments
 	for _, env := range enviroments {
 		cleanEnv := cleanEnviromentString(env)
@@ -28,30 +32,31 @@ func GenerateEnvFileContents(imageName string, enviroments []string, filePath st
 	content, err := os.ReadFile(filePath)
 	// If error occurs Close
 	if err != nil {
-		return fmt.Errorf("Failed to read the file: %v", err)
+		return "", fmt.Errorf("Failed to read the file: %v", err)
 	}
 	fmt.Println("Existing File Contents: ", string(content))
 
 	// Open file in append mode
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		return fmt.Errorf("Failed to write to file: %v ", err)
+		return "", fmt.Errorf("Failed to write to file: %v ", err)
 	}
 	// Close file later
 	defer file.Close()
 	// Write the new content to file
 	if _, err := file.WriteString(vars.String() + " \n"); err != nil {
-		return fmt.Errorf("Failed to write to file: %v", err)
+		return "", fmt.Errorf("Failed to write to file: %v", err)
 	}
 	// Write env config
 	if _, err := file.WriteString(envConfig + " \n"); err != nil {
-		return fmt.Errorf("Failed to write env file config: %v", err)
+		return "", fmt.Errorf("Failed to write env file config: %v", err)
 	}
 
 	println("New file content added")
+	envFileFlags := " --env " + imageName + ".env"
 
 	// return nil
-	return nil
+	return envFileFlags, nil
 }
 
 // Remove amnything after =
@@ -61,9 +66,5 @@ func cleanEnviromentString(env string) string {
 	if len(parts) > 1 {
 		return strings.TrimSpace(parts[0])
 	}
-	return ""
-}
-
-func generateNS8EnvFileFlags() string {
 	return ""
 }
