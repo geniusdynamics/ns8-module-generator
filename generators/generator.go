@@ -2,7 +2,7 @@ package generators
 
 import (
 	"fmt"
-	"ns8-module-generator/processors"
+	"ns8-module-generator/utils"
 	"strings"
 )
 
@@ -12,7 +12,7 @@ func GenerateNS8VolumeFlags(volumes []string) string {
 	for _, volume := range volumes {
 		formattedVolume += fmt.Sprintf(" --volume %s", volume)
 		err := AddToBackup(
-			processors.OutputDir+"/imageroot/etc/state-include.conf",
+			utils.OutputDir+"/imageroot/etc/state-include.conf",
 			fmt.Sprintf("volumes/%s", getVolumeName(volume)),
 		)
 		if err != nil {

@@ -2,7 +2,7 @@ package generators
 
 import (
 	"fmt"
-	"ns8-module-generator/processors"
+	"ns8-module-generator/utils"
 	"os"
 	"strings"
 )
@@ -58,7 +58,7 @@ func GenerateEnvFileContents(
 
 	// Add ENV to back up
 	err = AddToBackup(
-		processors.OutputDir+"/imageroot/etc/state-include.conf",
+		utils.OutputDir+"/imageroot/etc/state-include.conf",
 		fmt.Sprintf("state/%s.env \n", imageName),
 	)
 	if err != nil {

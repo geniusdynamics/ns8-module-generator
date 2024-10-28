@@ -6,6 +6,7 @@ import (
 	"ns8-module-generator/formatters"
 	"ns8-module-generator/generators"
 	"ns8-module-generator/parser"
+	"ns8-module-generator/utils"
 	"os"
 	"strings"
 )
@@ -155,7 +156,9 @@ func GenerateMainService() {
 	// Read the main Service file
 
 	// Read The Service file
-	service, e := readServiceFileContents(OutputDir + "/imageroot/systemd/user/kickstart.service")
+	service, e := readServiceFileContents(
+		utils.OutputDir + "/imageroot/systemd/user/kickstart.service",
+	)
 	if e != nil {
 		fmt.Printf("An error occurred: %v", e)
 	}
@@ -186,7 +189,7 @@ func GenerateMainService() {
 
 func GenerateServicesFiles(allServices string) {
 	serviceContent, e := readServiceFileContents(
-		OutputDir + "/imageroot/systemd/user/kickstart-app.service",
+		utils.OutputDir + "/imageroot/systemd/user/kickstart-app.service",
 	)
 	if e != nil {
 		fmt.Printf("An error occurred reading kickstart-app.service: %v", e)
@@ -198,7 +201,7 @@ func GenerateServicesFiles(allServices string) {
 		env, err := generators.GenerateEnvFileContents(
 			service.Name,
 			service.Environment,
-			OutputDir+"/imageroot/actions/configure-module/10configure_environment_vars",
+			utils.OutputDir+"/imageroot/actions/configure-module/10configure_environment_vars",
 		)
 		if err != nil {
 			fmt.Printf("An error occurred: %v", err)
@@ -224,7 +227,7 @@ func GenerateServicesFiles(allServices string) {
 		err = generators.GenerateGetConfigurationContent(
 			service.Name,
 			service.Environment,
-			OutputDir+"/imageroot/actions/get-configuration/20read",
+			utils.OutputDir+"/imageroot/actions/get-configuration/20read",
 		)
 		if err != nil {
 			fmt.Printf("An error occured while writing get configuration content: %v\n", err)
@@ -241,7 +244,7 @@ func GenerateServicesFiles(allServices string) {
 
 	}
 	// Add Json dump at the end
-	err := generators.AddJsonDump(OutputDir + "/imageroot/actions/get-configuration/20read")
+	err := generators.AddJsonDump(utils.OutputDir + "/imageroot/actions/get-configuration/20read")
 	if err != nil {
 		fmt.Printf("An error occurred adding json dump: %v\n", err)
 		return
@@ -249,7 +252,7 @@ func GenerateServicesFiles(allServices string) {
 }
 
 func writeServiceFile(content string, fileName string) error {
-	filePath := OutputDir + "/imageroot/systemd/user/" + fileName
+	filePath := utils.OutputDir + "/imageroot/systemd/user/" + fileName
 	err := os.WriteFile(filePath, []byte(content), 0644)
 	if err != nil {
 		return err

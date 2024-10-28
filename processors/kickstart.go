@@ -3,6 +3,7 @@ package processors
 import (
 	"fmt"
 	"ns8-module-generator/parser"
+	"ns8-module-generator/utils"
 )
 
 func ReplaceAllKickstart(appName string) error {
@@ -10,7 +11,7 @@ func ReplaceAllKickstart(appName string) error {
 		"kickstart": appName,
 	}
 
-	err := parser.ReplaceInAllFiles(OutputDir, replacers)
+	err := parser.ReplaceInAllFiles(utils.OutputDir, replacers)
 	if err != nil {
 		return fmt.Errorf("An error occurred: %v", err)
 	}

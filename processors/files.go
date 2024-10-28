@@ -4,26 +4,22 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"ns8-module-generator/utils"
 	"os"
 	"path/filepath"
-)
-
-var (
-	TemplateDir = "template"
-	OutputDir   = "output"
 )
 
 // CopyDirectory copies the template directory to the output directory with a progress indicator.
 func CopyDirectory() error {
 	// Create the output directory
-	err := os.MkdirAll(OutputDir, 0755)
+	err := os.MkdirAll(utils.OutputDir, 0755)
 	if err != nil {
 		return fmt.Errorf("error while creating the output directory: %v", err)
 	}
 
 	// Count total number of files and directories to copy
 	var totalItems int
-	err = filepath.WalkDir(TemplateDir, func(_ string, info os.DirEntry, _ error) error {
+	err = filepath.WalkDir(utils.TemplateDir, func(_ string, info os.DirEntry, _ error) error {
 		if !info.IsDir() {
 			totalItems++
 		}
@@ -43,47 +39,49 @@ func CopyDirectory() error {
 	}
 
 	// Walk through the source directory
-	err = filepath.WalkDir(TemplateDir, func(srcPath string, info os.DirEntry, err error) error {
-		if err != nil {
-			return fmt.Errorf("error walking through the source directory: %v", err)
-		}
-
-		// Create the destination path
-		relPath, _ := filepath.Rel(TemplateDir, srcPath)
-		dstPath := filepath.Join(OutputDir, relPath)
-
-		if info.IsDir() {
-			// Create directory in the destination
-			err := os.MkdirAll(dstPath, 0755)
+	err = filepath.WalkDir(
+		utils.TemplateDir,
+		func(srcPath string, info os.DirEntry, err error) error {
 			if err != nil {
-				return fmt.Errorf("failed to create directory %s: %v", dstPath, err)
+				return fmt.Errorf("error walking through the source directory: %v", err)
 			}
-		} else {
-			// Copy file
-			srcFile, err := os.Open(srcPath)
-			if err != nil {
-				return fmt.Errorf("failed to open source file %s: %v", srcPath, err)
+
+			// Create the destination path
+			relPath, _ := filepath.Rel(utils.TemplateDir, srcPath)
+			dstPath := filepath.Join(utils.OutputDir, relPath)
+
+			if info.IsDir() {
+				// Create directory in the destination
+				err := os.MkdirAll(dstPath, 0755)
+				if err != nil {
+					return fmt.Errorf("failed to create directory %s: %v", dstPath, err)
+				}
+			} else {
+				// Copy file
+				srcFile, err := os.Open(srcPath)
+				if err != nil {
+					return fmt.Errorf("failed to open source file %s: %v", srcPath, err)
+				}
+				defer srcFile.Close()
+
+				dstFile, err := os.Create(dstPath)
+				if err != nil {
+					return fmt.Errorf("failed to create destination file %s: %v", dstPath, err)
+				}
+				defer dstFile.Close()
+
+				_, err = io.Copy(dstFile, srcFile)
+				if err != nil {
+					return fmt.Errorf("failed to copy file content from %s to %s: %v", srcPath, dstPath, err)
+				}
 			}
-			defer srcFile.Close()
 
-			dstFile, err := os.Create(dstPath)
-			if err != nil {
-				return fmt.Errorf("failed to create destination file %s: %v", dstPath, err)
-			}
-			defer dstFile.Close()
-
-			_, err = io.Copy(dstFile, srcFile)
-			if err != nil {
-				return fmt.Errorf("failed to copy file content from %s to %s: %v", srcPath, dstPath, err)
-			}
-		}
-
-		// Update progress
-		copiedItems++
-		printProgress()
-		return nil
-	})
-
+			// Update progress
+			copiedItems++
+			printProgress()
+			return nil
+		},
+	)
 	if err != nil {
 		return fmt.Errorf("error copying directory: %v", err)
 	}
@@ -107,12 +105,12 @@ func ZipOutput(name string) error {
 	defer zipWrite.Close()
 
 	// Walk Through the output directory
-	err = filepath.WalkDir(OutputDir, func(path string, info os.DirEntry, err error) error {
+	err = filepath.WalkDir(utils.OutputDir, func(path string, info os.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("error walking through the output directory: %v", err)
 		}
 		// Create the file in the zip
-		relPath, _ := filepath.Rel(OutputDir, path)
+		relPath, _ := filepath.Rel(utils.OutputDir, path)
 		if info.IsDir() {
 			relPath += "/"
 		}
@@ -142,7 +140,7 @@ func ZipOutput(name string) error {
 
 // CleanOutputDirectory Clean the output directory
 func CleanOutputDirectory() error {
-	err := os.RemoveAll(OutputDir)
+	err := os.RemoveAll(utils.OutputDir)
 	if err != nil {
 		return fmt.Errorf("error cleaning output directory: %v", err)
 	}
