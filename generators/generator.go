@@ -11,13 +11,20 @@ func GenerateNS8VolumeFlags(volumes []string) string {
 	formattedVolume := ""
 	for _, volume := range volumes {
 		formattedVolume += fmt.Sprintf(" --volume %s", volume)
-		err := AddToBackup(
-			utils.OutputDir+"/imageroot/etc/state-include.conf",
-			fmt.Sprintf("volumes/%s", getVolumeName(volume)),
-		)
-		if err != nil {
-			fmt.Printf("An error occurred while adding volume %s to back up: %v", volume, err)
+		volumeName := getVolumeName(volume)
+		// Checl volume name prefix
+		if !strings.HasPrefix(volumeName, "./") || !strings.HasPrefix(volumeName, "/") {
+
+			err := AddToBackup(
+				utils.OutputDir+"/imageroot/etc/state-include.conf",
+				fmt.Sprintf("volumes/%s", getVolumeName(volume)),
+			)
+			if err != nil {
+				fmt.Printf("An error occurred while adding volume back up: %v", err)
+			}
+
 		}
+
 	}
 
 	return strings.TrimSpace(formattedVolume)
@@ -45,5 +52,5 @@ func GenerateNS8AfterServices(services interface{}, allServices, mainService str
 
 func getVolumeName(volume string) string {
 	parts := strings.Split(volume, ":")
-	return parts[0]
+	return strings.TrimSpace(parts[0])
 }
