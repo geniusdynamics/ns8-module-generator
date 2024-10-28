@@ -68,3 +68,80 @@ func cleanEnviromentString(env string) string {
 	}
 	return ""
 }
+
+func GenerateGetConfigurationContent(
+	imageName string,
+	enviroments []string,
+	filePath string,
+) error {
+	fmt.Println("Generating Get Configurations")
+	var config strings.Builder
+	// string to check if env exists
+	line := fmt.Sprintf("if os.path.exists(\"%s.env\"): \n", imageName)
+	config.WriteString(line)
+	// Read the env file
+	config.WriteString(fmt.Sprintf("\tdata = agent.read_envfile(\"%s.env\") \n", imageName))
+	// Loop thru the env vars and put in config obj
+	for _, env := range enviroments {
+		// clean the enviroment string
+		cleanEnv := cleanEnviromentString(env)
+		// Write string
+		config.WriteString(
+			fmt.Sprintf("\tconfig[\"%s\"] = data.get(\"%s\") \n", cleanEnv, cleanEnv),
+		)
+	}
+	// Write the else part to return an empty string
+	config.WriteString("else: \n")
+
+	// Loop thru the enviroments
+	for _, env := range enviroments {
+		// Clean env
+		cleanEnv := cleanEnviromentString(env)
+		// Add empty string
+		config.WriteString(fmt.Sprintf("\tconfig[\"%s\"] = \"\" \n", cleanEnv))
+	}
+	// Read get the configuration file
+	// Check if file Exists
+	content, err := os.ReadFile(filePath)
+	// If error occurs Close
+	if err != nil {
+		return fmt.Errorf("Failed to read the file: %v", err)
+	}
+	fmt.Println("Existing File Contents: ", string(content))
+
+	// Open file in append mode
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("Failed to write to file: %v ", err)
+	}
+	// Close file later
+	defer file.Close()
+	// Write the new content to file
+	if _, err := file.WriteString(config.String() + " \n"); err != nil {
+		return fmt.Errorf("Failed to write to file: %v", err)
+	}
+	return nil
+}
+
+func AddJsonDump(filePath string) error {
+	// Check if file Exists
+	content, err := os.ReadFile(filePath)
+	// If error occurs Close
+	if err != nil {
+		return fmt.Errorf("Failed to read the file: %v", err)
+	}
+	fmt.Println("Existing File Contents: ", string(content))
+
+	// Open file in append mode
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("Failed to write to file: %v ", err)
+	}
+	// Close file later
+	defer file.Close()
+	jsonDump := "json.dump(config, fp=sys.stdout)"
+	if _, err := file.WriteString(jsonDump + "\n"); err != nil {
+		return fmt.Errorf("Failed to add JSON DUMP in %s;", filePath)
+	}
+	return nil
+}

@@ -219,6 +219,17 @@ func GenerateServicesFiles(allServices string) {
 		}
 		formattedServiceContent := formatters.ReplacePlaceHolders(serviceContent, replacers)
 		print(formattedServiceContent)
+
+		// Generate Get Configuration content
+		err = generators.GenerateGetConfigurationContent(
+			service.Name,
+			service.Environment,
+			OutputDir+"/imageroot/actions/get-configuration/20read",
+		)
+		if err != nil {
+			fmt.Printf("An error occured while writing get configuration content: %v\n", err)
+			return
+		}
 		// Save the service file
 		e = writeServiceFile(formattedServiceContent, service.Name+"-app.service")
 		if e != nil {
@@ -228,6 +239,12 @@ func GenerateServicesFiles(allServices string) {
 			)
 		}
 
+	}
+	// Add Json dump at the end
+	err := generators.AddJsonDump(OutputDir + "/imageroot/actions/get-configuration/20read")
+	if err != nil {
+		fmt.Printf("An error occurred adding json dump: %v\n", err)
+		return
 	}
 }
 
