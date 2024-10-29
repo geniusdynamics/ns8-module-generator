@@ -8,7 +8,7 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func PropmtInputs() {
+func PropmtInputs() error {
 	propmt := promptui.Prompt{
 		Label: "Path to you docker compose",
 		Validate: func(input string) error {
@@ -25,7 +25,9 @@ func PropmtInputs() {
 	result, err := propmt.Run()
 	if err != nil {
 		fmt.Printf("Prompt failed %v \n", err)
+		return fmt.Errorf("An error occurred during input %v: ", err)
 	}
 	fmt.Printf("Docker compose path: %q \n", result)
 	utils.SetDockerComposePath(result)
+	return nil
 }
