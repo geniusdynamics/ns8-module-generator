@@ -6,7 +6,7 @@ import (
 	"ns8-module-generator/utils"
 )
 
-var APP_NAME = "nginx"
+var APP_NAME = utils.AppName
 
 func ProcessNs8Module() {
 	utils.SetOutputDir("output")
@@ -22,7 +22,7 @@ func ProcessNs8Module() {
 		fmt.Printf("error while processing build image: %v", err)
 	}
 
-	err = ReplaceAllKickstart("nginx1")
+	err = ReplaceAllKickstart(utils.AppName)
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 	}

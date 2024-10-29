@@ -172,14 +172,14 @@ func GenerateMainService() {
 	allServices := generateRequiredServices(images)
 	// Replacers
 	replacers := map[string]string{
-		"{{ SERVICE_NAME }}":      APP_NAME,
+		"{{ SERVICE_NAME }}":      utils.AppName,
 		"{{ REQUIRED_SERVICES }}": allServices,
 		"{{ BEFORE_SERVICES }}":   allServices,
 	}
 	formattedContent := formatters.ReplacePlaceHolders(service, replacers)
 	print(formattedContent)
 
-	err := writeServiceFile(formattedContent, APP_NAME+".service")
+	err := writeServiceFile(formattedContent, utils.AppName+".service")
 	if err != nil {
 		fmt.Printf("An error occurred while writing to service: %v", err)
 		return
@@ -208,16 +208,16 @@ func GenerateServicesFiles(allServices string) {
 		}
 		replacers := map[string]string{
 			"{{ SERVICE_NAME }}":      service.Name + "-app",
-			"{{ MAIN_SERVICE_NAME }}": APP_NAME,
+			"{{ MAIN_SERVICE_NAME }}": utils.AppName,
 			"{{ IMAGE_NAME }}":        formatters.ImageNameWithSuffix(service.Image),
 			"{{ OTHER_COMMANDS }}":    "",
 			"{{ VOLUMES }}":           generators.GenerateNS8VolumeFlags(service.Volumes),
 			"{{ AFTER_SERVICES }}": generators.GenerateNS8AfterServices(
 				service.DependsOn,
 				allServices,
-				APP_NAME+".service",
+				utils.AppName+".service",
 			),
-			"{{ BINDS_TO_SERVICES }}": APP_NAME + "service",
+			"{{ BINDS_TO_SERVICES }}": utils.AppName + ".service",
 			"{{ ENV_FILES }}":         env,
 		}
 		formattedServiceContent := formatters.ReplacePlaceHolders(serviceContent, replacers)

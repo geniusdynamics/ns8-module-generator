@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"log"
+	"ns8-module-generator/utils"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -11,13 +12,19 @@ import (
 type TextInput struct {
 	textInput textinput.Model
 	err       error
+	value     string
 }
 
 func InputAppName() {
 	p := tea.NewProgram(textInputModel())
-
-	if _, err := p.Run(); err != nil {
+	input, err := p.Run()
+	if err != nil {
 		log.Fatal(err)
+	}
+	inputModel, ok := input.(TextInput)
+	if ok {
+		fmt.Println("Text Value: ", inputModel.value)
+		utils.SetAppName(inputModel.value)
 	}
 }
 
@@ -44,6 +51,7 @@ func (m TextInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+			m.value = m.textInput.Value()
 			return m, tea.Quit
 		}
 

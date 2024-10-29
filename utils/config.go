@@ -25,4 +25,5 @@ func SetAppName(appName string) {
 	app_name := strings.Split(appName, " ")
 
 	AppName = strings.Join(app_name, "")
+	// AppName = appName
 }
