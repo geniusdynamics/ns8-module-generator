@@ -16,7 +16,7 @@ func ProcessNs8Module() {
 	if err != nil {
 		fmt.Printf("error while copying directory: %v", err)
 	}
-	parser.DockerComposeParser("./tests/docker-compose.yaml")
+	parser.DockerComposeParser(utils.DockerComposePath)
 	err = ProcessBuildImage()
 	if err != nil {
 		fmt.Printf("error while processing build image: %v", err)
