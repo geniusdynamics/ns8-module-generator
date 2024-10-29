@@ -27,4 +27,5 @@ func ProcessNs8Module() {
 		fmt.Printf("Error: %v", err)
 	}
 	GenerateMainService()
+	CleanUpKickstartFiles()
 }
