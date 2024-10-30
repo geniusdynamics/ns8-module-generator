@@ -42,7 +42,7 @@ jobs:
           if($env:RUNNER_OS -eq "Windows"){
             mv ns8-module-generator.exe release/
           } else {
-            mv ns8-module-generator.exe release/
+            mv ns8-module-generator release/
           }
 
       - name: Upload Release Assets
