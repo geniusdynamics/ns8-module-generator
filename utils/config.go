@@ -7,6 +7,7 @@ var (
 	TemplateDir       string
 	DockerComposePath string
 	AppName           string
+	TemplateZipURL    string
 )
 
 func SetOutputDir(dir string) {
@@ -26,4 +27,8 @@ func SetAppName(appName string) {
 
 	AppName = strings.Join(app_name, "")
 	// AppName = appName
+}
+
+func SetTemplateZipUrl(url string) {
+	TemplateZipURL = url
 }

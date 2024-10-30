@@ -7,6 +7,7 @@ import (
 	"ns8-module-generator/utils"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // CopyDirectory copies the template directory to the output directory with a progress indicator.
@@ -161,4 +162,51 @@ func CreateModuleFromTemplateDirectory(name string) error {
 		return fmt.Errorf("error cleaning output directory: %v", err)
 	}
 	return nil
+}
+
+func UnzipFiles(name, path string) {
+	archive, err := zip.OpenReader(path)
+	if err != nil {
+		fmt.Printf("An error occurred while UnzipFiles: %v", err)
+	}
+
+	// Defer clofing archive
+	defer archive.Close()
+
+	// Loop thru archive
+	for _, f := range archive.File {
+		filePath := filepath.Join(name, f.Name)
+		fmt.Println("Unzipping file: ", filePath)
+
+		if !strings.HasPrefix(filePath, filepath.Clean(name)+string(os.PathSeparator)) {
+			fmt.Println("invalid file path")
+			return
+		}
+		if f.FileInfo().IsDir() {
+			fmt.Println("creating directory...")
+			os.MkdirAll(filePath, os.ModePerm)
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+			panic(err)
+		}
+
+		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			panic(err)
+		}
+
+		fileInArchive, err := f.Open()
+		if err != nil {
+			panic(err)
+		}
+
+		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
+			panic(err)
+		}
+
+		dstFile.Close()
+		fileInArchive.Close()
+	}
 }
