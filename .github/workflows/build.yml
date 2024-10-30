@@ -24,15 +24,17 @@ jobs:
           check-latest: true
 
       - name: Build
+        shell: pwsh
         run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-              $env:GOOS = "windows"
-              $env:GOARCH = "amd64"
-              go build -o ns8-module-generator.exe  
-          else
-              GOOS=linux GOARCH=amd64 go build -o ns8-module-generator 
-          fi
-
+          if ($env:RUNNER_OS -eq "Windows") {
+            $env:GOOS = "windows"
+            $env:GOARCH = "amd64"
+            go build -o ns8-module-generator.exe 
+          } else {
+            $env:GOOS = "linux"
+            $env:GOARCH = "amd64"
+            go build -o ns8-module-generator
+          }
       - name: Archive the binaries
         run: |
           mkdir -p release
