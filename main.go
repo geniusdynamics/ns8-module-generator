@@ -3,6 +3,7 @@ package main
 import (
 	"ns8-module-generator/commands"
 	"ns8-module-generator/http"
+	"ns8-module-generator/processors"
 	"ns8-module-generator/utils"
 	"os"
 )
@@ -24,5 +25,5 @@ func main() {
 	// for utils.DockerComposePath == "" {
 	// 	commands.InputPrompts()
 	// }
-	// processors.ProcessNs8Module()
+	processors.ProcessNs8Module()
 }

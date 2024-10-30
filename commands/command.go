@@ -7,4 +7,5 @@ type (
 func InputPrompts() {
 	PickFile()
 	InputAppName()
+	InputGithubToken()
 }

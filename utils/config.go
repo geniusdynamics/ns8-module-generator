@@ -8,6 +8,7 @@ var (
 	DockerComposePath string
 	AppName           string
 	TemplateZipURL    string
+	GithubToken       string
 )
 
 func SetOutputDir(dir string) {
@@ -31,4 +32,8 @@ func SetAppName(appName string) {
 
 func SetTemplateZipUrl(url string) {
 	TemplateZipURL = url
+}
+
+func SetGithubToken(token string) {
+	GithubToken = token
 }

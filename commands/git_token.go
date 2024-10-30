@@ -9,41 +9,40 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type TextInput struct {
+type GithubTokenInput struct {
 	textInput textinput.Model
 	err       error
 	value     string
 }
 
-func InputAppName() {
-	p := tea.NewProgram(textInputModel())
+func InputGithubToken() {
+	p := tea.NewProgram(githubTokenInputModel())
 	input, err := p.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	inputModel, ok := input.(TextInput)
+	inputModel, ok := input.(GithubTokenInput)
 	if ok {
-		utils.SetAppName(inputModel.value)
+		utils.SetGithubToken(inputModel.value)
 	}
 }
 
-func textInputModel() TextInput {
+func githubTokenInputModel() GithubTokenInput {
 	ti := textinput.New()
-	ti.Placeholder = "App Name"
+	ti.Placeholder = "Github Token"
 	ti.Focus()
-	ti.CharLimit = 50
-	ti.Width = 20
-	return TextInput{
+	ti.CharLimit = 255
+	return GithubTokenInput{
 		textInput: ti,
 		err:       nil,
 	}
 }
 
-func (m TextInput) Init() tea.Cmd {
+func (m GithubTokenInput) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m TextInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m GithubTokenInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -64,9 +63,9 @@ func (m TextInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m TextInput) View() string {
+func (m GithubTokenInput) View() string {
 	return fmt.Sprintf(
-		"The name of the app(Should be one word or separated by hyphen)?\n\n%s",
+		"\nGithub token used for pushing the module to github?\n\n%s",
 		m.textInput.View(),
 	) + "\n"
 }
