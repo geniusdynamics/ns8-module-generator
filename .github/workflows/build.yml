@@ -48,7 +48,7 @@ jobs:
       - name: Upload Release Assets
         uses: actions/upload-artifact@v4
         with:
-          name: binaries-${{ github.run_id }}
+          name: binaries-${{ runner.os }}-${{ github.run_id }}
           path: release/
 
   release:
