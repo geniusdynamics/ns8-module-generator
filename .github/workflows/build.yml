@@ -36,6 +36,7 @@ jobs:
             go build -o ns8-module-generator
           }
       - name: Archive the binaries
+        shell: pwsh
         run: |
           mkdir -p release
           if($env:RUNNER_OS -eq "Windows"){
