@@ -164,49 +164,74 @@ func CreateModuleFromTemplateDirectory(name string) error {
 	return nil
 }
 
-func UnzipFiles(name, path string) {
-	archive, err := zip.OpenReader(path)
-	if err != nil {
-		fmt.Printf("An error occurred while UnzipFiles: %v", err)
+func UnzipFiles(destPath, zipPath string) {
+	// Ensure the destination directory exists; create if it doesn't
+	if err := os.MkdirAll(destPath, os.ModePerm); err != nil {
+		fmt.Printf("Failed to create destination directory: %v\n", err)
+		return
 	}
-
-	// Defer clofing archive
+	// Open the zip archive
+	archive, err := zip.OpenReader(zipPath)
+	if err != nil {
+		fmt.Printf("An error occurred while unzipping files: %v\n", err)
+		return
+	}
 	defer archive.Close()
 
-	// Loop thru archive
+	// Loop through files in the archive
 	for _, f := range archive.File {
-		filePath := filepath.Join(name, f.Name)
+		// Strip out any root directory from each file's name to avoid nested directories
+		filePath := filepath.Join(destPath, f.Name)
 		fmt.Println("Unzipping file: ", filePath)
 
-		if !strings.HasPrefix(filePath, filepath.Clean(name)+string(os.PathSeparator)) {
-			fmt.Println("invalid file path")
+		fmt.Println("Unzipping file: ", filePath)
+
+		// Ensure file paths are valid and inside the destination directory
+		if !strings.HasPrefix(filePath, filepath.Clean(destPath)+string(os.PathSeparator)) {
+			fmt.Println("Invalid file path")
 			return
 		}
+
+		// Create directories as needed
 		if f.FileInfo().IsDir() {
-			fmt.Println("creating directory...")
-			os.MkdirAll(filePath, os.ModePerm)
+			fmt.Println("Creating directory...")
+			if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
+				fmt.Printf("Error creating directory %s: %v\n", filePath, err)
+				return
+			}
 			continue
 		}
 
+		// Create the file
 		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-			panic(err)
+			fmt.Printf("Error creating directory %s: %v\n", filepath.Dir(filePath), err)
+			return
 		}
 
 		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
-			panic(err)
+			fmt.Printf("Error creating file %s: %v\n", filePath, err)
+			return
 		}
+		defer dstFile.Close()
 
+		// Open the file within the archive
 		fileInArchive, err := f.Open()
 		if err != nil {
-			panic(err)
+			fmt.Printf("Error opening file in archive %s: %v\n", f.Name, err)
+			return
 		}
+		defer fileInArchive.Close()
 
+		// Copy contents to the destination file
 		if _, err := io.Copy(dstFile, fileInArchive); err != nil {
-			panic(err)
+			fmt.Printf("Error copying contents to file %s: %v\n", filePath, err)
+			return
 		}
-
-		dstFile.Close()
-		fileInArchive.Close()
+	}
+	fmt.Println("Unzipping complete!")
+	err = os.Remove(zipPath)
+	if err != nil {
+		fmt.Print("An error occurred while deleting zip")
 	}
 }

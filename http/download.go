@@ -35,5 +35,6 @@ func DownloadTemplate() {
 	}
 
 	// Unzip Files After that
-	processors.UnzipFiles("template", "template.zip")
+	processors.UnzipFiles("template", "templatezip.zip")
+	utils.SetTemplateDir("template/ns8-generator-module-template-0.0.1")
 }

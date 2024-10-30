@@ -9,8 +9,6 @@ import (
 var APP_NAME = utils.AppName
 
 func ProcessNs8Module() {
-	utils.SetOutputDir("output")
-	utils.SetTemplateDir("template")
 	// Create a temp Directory
 	err := CopyDirectory()
 	if err != nil {
