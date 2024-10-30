@@ -15,10 +15,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@latest
 
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@latest
         with:
           go-version: "latest" # Change to your Go version
 
@@ -41,7 +41,7 @@ jobs:
           fi
 
       - name: Upload Release Assets
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@latest
         with:
           name: binaries
           path: release/
@@ -51,11 +51,11 @@ jobs:
     needs: build
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@latest
 
       - name: Create Release
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@latest
         with:
           tag: ${{ github.ref }}
           files: release/*
