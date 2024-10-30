@@ -38,11 +38,11 @@ jobs:
       - name: Archive the binaries
         run: |
           mkdir -p release
-          if [ "${{ runner.os }}" == "Linux" ]; then
-            mv ns8-module-generator release/
-          else
+          if($env:RUNNER_OS -eq "Windows"){
             mv ns8-module-generator.exe release/
-          fi
+          } else {
+            mv ns8-module-generator.exe release/
+          }
 
       - name: Upload Release Assets
         uses: actions/upload-artifact@v4
