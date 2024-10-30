@@ -182,9 +182,6 @@ func UnzipFiles(destPath, zipPath string) {
 	for _, f := range archive.File {
 		// Strip out any root directory from each file's name to avoid nested directories
 		filePath := filepath.Join(destPath, f.Name)
-		fmt.Println("Unzipping file: ", filePath)
-
-		fmt.Println("Unzipping file: ", filePath)
 
 		// Ensure file paths are valid and inside the destination directory
 		if !strings.HasPrefix(filePath, filepath.Clean(destPath)+string(os.PathSeparator)) {

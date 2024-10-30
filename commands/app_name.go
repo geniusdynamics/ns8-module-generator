@@ -23,7 +23,6 @@ func InputAppName() {
 	}
 	inputModel, ok := input.(TextInput)
 	if ok {
-		fmt.Println("Text Value: ", inputModel.value)
 		utils.SetAppName(inputModel.value)
 	}
 }
