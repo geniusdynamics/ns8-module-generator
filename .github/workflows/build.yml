@@ -25,22 +25,21 @@ jobs:
 
       - name: Build
         run: |
-          if [ $RUNNER_OS == "Windows" ]; then
-            $env:GOOS = "windows"
-            $env:GOARCH = "amd64"
-            go build -o ns8-module-generator.exe    
+          if [ "${{ runner.os }}" == "Windows" ]; then
+              $env:GOOS = "windows"
+              $env:GOARCH = "amd64"
+              go build -o ns8-module-generator.exe  
           else
-            GOOS=linux GOARCH=amd64 go build -o ns8-module-generator 
+              GOOS=linux GOARCH=amd64 go build -o ns8-module-generator 
           fi
 
       - name: Archive the binaries
         run: |
-          if [ $RUNNER_OS == "Windows" ]; then
-            mkdir -p release
-            mv ns8-module-generator.exe release/
-          else
-            mkdir -p release
+          mkdir -p release
+          if [ "${{ runner.os }}" == "Linux" ]; then
             mv ns8-module-generator release/
+          else
+            mv ns8-module-generator.exe release/
           fi
 
       - name: Upload Release Assets
