@@ -3,12 +3,13 @@ package utils
 import "strings"
 
 var (
-	OutputDir         string
-	TemplateDir       string
-	DockerComposePath string
-	AppName           string
-	TemplateZipURL    string
-	GithubToken       string
+	OutputDir              string
+	TemplateDir            string
+	DockerComposePath      string
+	AppName                string
+	TemplateZipURL         string
+	GithubToken            string
+	GithubOrganizationName string
 )
 
 func SetOutputDir(dir string) {
@@ -36,4 +37,8 @@ func SetTemplateZipUrl(url string) {
 
 func SetGithubToken(token string) {
 	GithubToken = token
+}
+
+func SetGithubOrganizationName(name string) {
+	GithubOrganizationName = name
 }
