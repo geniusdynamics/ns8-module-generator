@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	utils.SetOutputDir("output")
+	// utils.SetOutputDir("output")
 	utils.SetTemplateDir("template")
 	// Set utils
 	utils.SetTemplateZipUrl(
