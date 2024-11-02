@@ -9,41 +9,41 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type GitOrgNameTextInput struct {
+type AppInitGitTextInput struct {
 	textInput textinput.Model
 	err       error
 	value     string
 }
 
-func InputGithubOrganizationName() {
-	p := tea.NewProgram(githubTextInputModel())
+func InputAppGitInit() {
+	p := tea.NewProgram(appGitInitModel())
 	input, err := p.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	inputModel, ok := input.(GitOrgNameTextInput)
+	inputModel, ok := input.(AppInitGitTextInput)
 	if ok {
-		utils.SetGithubOrganizationName(inputModel.value)
+		utils.SetAppGitInit(inputModel.value)
 	}
 }
 
-func githubTextInputModel() GitOrgNameTextInput {
+func appGitInitModel() AppInitGitTextInput {
 	ti := textinput.New()
-	ti.Placeholder = "Organization Github Username"
+	ti.Placeholder = "yes / no"
 	ti.Focus()
 	ti.CharLimit = 50
 	ti.Width = 20
-	return GitOrgNameTextInput{
+	return AppInitGitTextInput{
 		textInput: ti,
 		err:       nil,
 	}
 }
 
-func (m GitOrgNameTextInput) Init() tea.Cmd {
+func (m AppInitGitTextInput) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m GitOrgNameTextInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m AppInitGitTextInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -64,9 +64,9 @@ func (m GitOrgNameTextInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m GitOrgNameTextInput) View() string {
+func (m AppInitGitTextInput) View() string {
 	return fmt.Sprintf(
-		"\nGithub Organization Username?(Leave blank if you need to push to personal account)\n\n%s",
+		"\nInitialise and Push to Git(yes or no)\n\n%s",
 		m.textInput.View(),
 	) + "\n"
 }

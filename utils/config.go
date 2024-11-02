@@ -10,6 +10,7 @@ var (
 	TemplateZipURL         string
 	GithubToken            string
 	GithubOrganizationName string
+	AppGitInit             string
 )
 
 func SetOutputDir(dir string) {
@@ -41,4 +42,8 @@ func SetGithubToken(token string) {
 
 func SetGithubOrganizationName(name string) {
 	GithubOrganizationName = name
+}
+
+func SetAppGitInit(val string) {
+	AppGitInit = val
 }

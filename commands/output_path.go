@@ -66,7 +66,7 @@ func (m OutputPathInputText) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m OutputPathInputText) View() string {
 	return fmt.Sprintf(
-		"Enter the relative output path(use `pwd` )?\n\n%s",
+		"\nEnter the relative output path(use `pwd` )?\n\n%s",
 		m.textInput.View(),
 	) + "\n"
 }
