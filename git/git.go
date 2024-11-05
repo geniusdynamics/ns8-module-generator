@@ -32,5 +32,6 @@ func CreateRepository() error {
 		)
 	}
 	fmt.Printf("The Git URL: %s", repo.GetGitURL())
+	utils.SetGitRemoteUrl(repo.GetGitURL())
 	return nil
 }
