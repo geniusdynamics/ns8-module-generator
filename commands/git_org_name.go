@@ -32,7 +32,6 @@ func githubTextInputModel() GitOrgNameTextInput {
 	ti.Placeholder = "Organization Github Username"
 	ti.Focus()
 	ti.CharLimit = 50
-	ti.Width = 20
 	return GitOrgNameTextInput{
 		textInput: ti,
 		err:       nil,
