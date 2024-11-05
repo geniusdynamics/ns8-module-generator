@@ -1,6 +1,10 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/go-git/go-git"
+)
 
 var (
 	OutputDir              string
@@ -9,8 +13,12 @@ var (
 	AppName                string
 	TemplateZipURL         string
 	GithubToken            string
+	GithubUsername         string
 	GithubOrganizationName string
 	AppGitInit             string
+	GitRemoteUrl           string
+	GitWorkTree            *git.Worktree
+	GitLocalRepo           *git.Repository
 )
 
 func SetOutputDir(dir string) {
@@ -40,10 +48,26 @@ func SetGithubToken(token string) {
 	GithubToken = token
 }
 
+func SetGithubUsername(name string) {
+	GithubUsername = name
+}
+
 func SetGithubOrganizationName(name string) {
 	GithubOrganizationName = name
 }
 
 func SetAppGitInit(val string) {
 	AppGitInit = val
+}
+
+func SetGitRemoteUrl(url string) {
+	GitRemoteUrl = url
+}
+
+func SetGitWorkingTree(worktree *git.Worktree) {
+	GitWorkTree = worktree
+}
+
+func SetGitLocalRepo(repo *git.Repository) {
+	GitLocalRepo = repo
 }
