@@ -2,6 +2,7 @@ package generators
 
 import (
 	"fmt"
+	"ns8-module-generator/git"
 	"os"
 )
 
@@ -23,6 +24,14 @@ func AddToBackup(filePath, backupContent string) error {
 	defer file.Close()
 	if _, err := file.WriteString(backupContent + "\n"); err != nil {
 		return fmt.Errorf("Failed to add JSON DUMP in %s;", filePath)
+	}
+	err = git.GitAddFile(filePath)
+	if err != nil {
+		return err
+	}
+	err = git.GitCommitFiles("feat(backup): added backup files needed")
+	if err != nil {
+		return err
 	}
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"ns8-module-generator/git"
 	"ns8-module-generator/utils"
 	"os"
 	"path/filepath"
@@ -16,6 +17,13 @@ func CopyDirectory() error {
 	err := os.MkdirAll(utils.OutputDir, 0755)
 	if err != nil {
 		return fmt.Errorf("error while creating the output directory: %v", err)
+	}
+	if utils.AppGitInit == "yes" {
+		// Initialize git repo
+		err = git.InitializeGit()
+		if err != nil {
+			fmt.Printf("An error occurred while initializing git: %s", err)
+		}
 	}
 
 	// Count total number of files and directories to copy
@@ -74,6 +82,11 @@ func CopyDirectory() error {
 				_, err = io.Copy(dstFile, srcFile)
 				if err != nil {
 					return fmt.Errorf("failed to copy file content from %s to %s: %v", srcPath, dstPath, err)
+				}
+				// Git add File
+				err = git.GitAddFile(dstPath)
+				if err != nil {
+					return fmt.Errorf("failed to add file to git worktree: %s", err)
 				}
 			}
 

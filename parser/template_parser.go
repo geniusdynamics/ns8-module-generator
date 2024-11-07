@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"io/fs"
+	"ns8-module-generator/git"
 	"os"
 	"path/filepath"
 	"strings"
@@ -113,6 +114,10 @@ func ReplaceInAllFiles(directory string, replacements map[string]string) error {
 				return errr
 			}
 			fmt.Printf("Replaced Content in file: %s\n", path)
+		}
+		err = git.GitAddFile(path)
+		if err != nil {
+			return err
 		}
 		return nil
 	})

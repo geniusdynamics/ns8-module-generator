@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"ns8-module-generator/formatters"
 	"ns8-module-generator/generators"
+	"ns8-module-generator/git"
 	"ns8-module-generator/parser"
 	"ns8-module-generator/utils"
 	"os"
@@ -196,8 +197,8 @@ func GenerateServicesFiles(allServices string) {
 		return
 	}
 	for _, service := range *parser.GetServices() {
-		fmt.Printf("Name Of Service: %v\n", service.Name)
-		fmt.Printf("Enviroment : %v \n", service.Environment)
+		// fmt.Printf("Name Of Service: %v\n", service.Name)
+		// fmt.Printf("Enviroment : %v \n", service.Environment)
 		env, err := generators.GenerateEnvFileContents(
 			service.Name,
 			service.Environment,
@@ -221,7 +222,7 @@ func GenerateServicesFiles(allServices string) {
 			"{{ ENV_FILES }}":         env,
 		}
 		formattedServiceContent := formatters.ReplacePlaceHolders(serviceContent, replacers)
-		print(formattedServiceContent)
+		// print(formattedServiceContent)
 
 		// Generate Get Configuration content
 		err = generators.GenerateGetConfigurationContent(
@@ -254,6 +255,14 @@ func GenerateServicesFiles(allServices string) {
 func writeServiceFile(content string, fileName string) error {
 	filePath := utils.OutputDir + "/imageroot/systemd/user/" + fileName
 	err := os.WriteFile(filePath, []byte(content), 0644)
+	if err != nil {
+		return err
+	}
+	err = git.GitAddFile(filePath)
+	if err != nil {
+		return err
+	}
+	err = git.GitCommitFiles("feat(service): added "+ fileName)
 	if err != nil {
 		return err
 	}

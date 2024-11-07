@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"ns8-module-generator/utils"
 
-	"github.com/go-git/go-git"
-	"gopkg.in/src-d/go-git.v4/config"
-	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
 func InitializeGit() error {
@@ -31,6 +31,10 @@ func InitializeGit() error {
 }
 
 func GitAddFile(filePath string) error {
+	// Check if App Git Initilixation is enabled
+	if utils.AppGitInit != "yes" {
+		return nil
+	}
 	// Get current worktree
 	worktree := utils.GitWorkTree
 	// Add File
@@ -42,7 +46,11 @@ func GitAddFile(filePath string) error {
 	return nil
 }
 
-func GitCommitFile(message string) error {
+func GitCommitFiles(message string) error {
+	// Check if App Git Initilixation is enabled
+	if utils.AppGitInit != "yes" {
+		return nil
+	}
 	// Get Current work tree
 	worktree := utils.GitWorkTree
 	// Commit file
@@ -54,27 +62,27 @@ func GitCommitFile(message string) error {
 	return nil
 }
 
-func GitPushToRemote()error{
-  // Get current local repo
-  repo := utils.GitLocalRepo
-  // Set Remote Path 
-  _, err := repo.CreateRemote(&config.RemoteConfig{
-    Name: "origin",
-    URLs: [] string{ fmt.Sprintf(utils.GitRemoteUrl}
-  })
-  if err != nil {
-    return fmt.Errorf("An error occurred while adding remote config: %v", err)
-  }
-  err = repo.Push(&git.PushOptions{
-    RemoteName: "origin",
-    Auth: &http.BasicAuth{
-      Username: utils.GithubUsername,
-      Password: utils.GithubToken
-    }
-  })
-  if err != nil {
-    return fmt.Errorf("An error occurred while pushing online: %v", err)
-  }
+func GitPushToRemote() error {
+	// Get current local repo
+	repo := utils.GitLocalRepo
+	// Set Remote Path
+	_, err := repo.CreateRemote(&config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{ utils.GitRemoteUrl },
+	})
+	if err != nil {
+		return fmt.Errorf("An error occurred while adding remote config: %v", err)
+	}
+	err = repo.Push(&git.PushOptions{
+		RemoteName: "origin",
+		Auth: &http.BasicAuth{
+			Username: utils.GithubUsername,
+			Password: utils.GithubToken,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("An error occurred while pushing online: %v", err)
+	}
 
-  return nil
+	return nil
 }

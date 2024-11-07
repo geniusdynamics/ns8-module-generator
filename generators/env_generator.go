@@ -2,6 +2,7 @@ package generators
 
 import (
 	"fmt"
+	"ns8-module-generator/git"
 	"ns8-module-generator/utils"
 	"os"
 	"strings"
@@ -67,6 +68,14 @@ func GenerateEnvFileContents(
 			imageName,
 			err,
 		)
+	}
+	err = git.GitAddFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	err = git.GitCommitFiles("feat(actions): added env in actions and services")
+	if err != nil {
+		return "", err
 	}
 
 	// return nil
@@ -156,6 +165,14 @@ func AddJsonDump(filePath string) error {
 	jsonDump := "json.dump(config, fp=sys.stdout)"
 	if _, err := file.WriteString(jsonDump + "\n"); err != nil {
 		return fmt.Errorf("Failed to add JSON DUMP in %s;", filePath)
+	}
+	err = git.GitAddFile(filePath)
+	if err != nil {
+		return err
+	}
+	err = git.GitCommitFiles("feat(): dump json")
+	if err != nil {
+		return err
 	}
 	return nil
 }

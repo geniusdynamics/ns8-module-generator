@@ -3,7 +3,7 @@ package utils
 import (
 	"strings"
 
-	"github.com/go-git/go-git"
+	"github.com/go-git/go-git/v5"
 )
 
 var (
