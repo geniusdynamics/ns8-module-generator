@@ -104,6 +104,10 @@ func ReplaceInAllFiles(directory string, replacements map[string]string) error {
 		if err != nil {
 			return err
 		}
+		// Skip the .git directory
+		if info.IsDir() && info.Name() == ".git" {
+			return filepath.SkipDir
+		}
 		// Process Regular Files
 		if !info.IsDir() {
 			fmt.Println("The file content of: " + path + " Are being replaced")

@@ -55,6 +55,11 @@ func CopyDirectory() error {
 				return fmt.Errorf("error walking through the source directory: %v", err)
 			}
 
+			// Skip only the .git directory (not .github)
+			if info.IsDir() && info.Name() == ".git" {
+				return filepath.SkipDir
+			}
+
 			// Create the destination path
 			relPath, _ := filepath.Rel(utils.TemplateDir, srcPath)
 			dstPath := filepath.Join(utils.OutputDir, relPath)
