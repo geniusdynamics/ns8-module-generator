@@ -38,10 +38,17 @@ jobs:
           check-latest: true
 
       - name: Build
+        shell: pwsh
         run: |
-          export GOOS=${{ matrix.GOOS }}
-          export GOARCH=${{ matrix.GOARCH }}
-          go build -o ns8-module-generator${{ matrix.EXT }}
+        if ($env:RUNNER_OS -eq "Windows") {
+          $env:GOOS = "windows"
+          $env:GOARCH = "amd64"
+          go build -o ns8-module-generator.exe
+        } else {
+          export GOOS=linux
+          export GOARCH=amd64
+          go build -o ns8-module-generator
+        }
 
       - name: Archive the binaries
         run: |
