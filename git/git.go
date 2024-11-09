@@ -18,9 +18,11 @@ func InitilaizeGitClient() {
 }
 
 func CreateRepository() error {
+	name := utils.AppName
 	repo := &github.Repository{
-		Name:    github.String(""),
-		Private: github.Bool(false),
+		Name:          github.String("ns8-" + name),
+		Private:       github.Bool(false),
+		DefaultBranch: github.String("main"),
 	}
 	ctx := context.Background()
 	// Return response err and repo details
@@ -31,7 +33,9 @@ func CreateRepository() error {
 			err,
 		)
 	}
-	fmt.Printf("The Git URL: %s", repo.GetGitURL())
-	utils.SetGitRemoteUrl(repo.GetGitURL())
+	// Print the repository URL
+	fmt.Printf("The Git URL: %s \n", repo.GetHTMLURL())
+	utils.SetGitRemoteUrl(repo.GetHTMLURL())
+
 	return nil
 }

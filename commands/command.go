@@ -16,6 +16,7 @@ func InputPrompts() {
 	InputAppGitInit()
 	if strings.ToLower(utils.AppGitInit) == "yes" {
 		InputGithubOrganizationName()
+		InputGithubUsername()
 		InputGithubToken()
 	}
 }

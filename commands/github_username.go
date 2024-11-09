@@ -1,3 +1,4 @@
+
 package commands
 
 import (
@@ -9,42 +10,40 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type GithubTokenInput struct {
+type GithubUserName struct {
 	textInput textinput.Model
 	err       error
 	value     string
 }
 
-func InputGithubToken() {
-	p := tea.NewProgram(githubTokenInputModel())
+func InputGithubUsername() {
+	p := tea.NewProgram(githubUsernameInputModel())
 	input, err := p.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-	inputModel, ok := input.(GithubTokenInput)
+	inputModel, ok := input.(GithubUserName)
 	if ok {
-		utils.SetGithubToken(inputModel.value)
+		utils.SetGithubUsername(inputModel.value)
 	}
 }
 
-func githubTokenInputModel() GithubTokenInput {
+func githubUsernameInputModel() GithubUserName {
 	ti := textinput.New()
-	ti.Placeholder = "Github Token"
+	ti.Placeholder = "Github Username"
 	ti.Focus()
-	ti.CharLimit = 255
-	ti.EchoMode = textinput.EchoPassword
-	ti.EchoCharacter = '*'
-	return GithubTokenInput{
+	ti.CharLimit = 50
+	return GithubUserName{
 		textInput: ti,
 		err:       nil,
 	}
 }
 
-func (m GithubTokenInput) Init() tea.Cmd {
+func (m GithubUserName) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m GithubTokenInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m GithubUserName) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -65,9 +64,9 @@ func (m GithubTokenInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m GithubTokenInput) View() string {
+func (m GithubUserName) View() string {
 	return fmt.Sprintf(
-		"\nGithub token used for pushing the module to github?\n\n%s",
+		"\nPersonal Username?\n\n%s",
 		m.textInput.View(),
 	) + "\n"
 }

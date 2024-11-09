@@ -31,12 +31,12 @@ func GenerateEnvFileContents(
 	// write to env file
 	envConfig += fmt.Sprintf("agent.write_envfile(\"%s.env\", %s)", imageName, imageName)
 	// Check if file Exists
-	content, err := os.ReadFile(filePath)
+	_, err := os.ReadFile(filePath)
 	// If error occurs Close
 	if err != nil {
 		return "", fmt.Errorf("Failed to read the file: %v", err)
 	}
-	fmt.Println("Existing File Contents: ", string(content))
+	// fmt.Println("Existing File Contents: ", string(content))
 
 	// Open file in append mode
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)

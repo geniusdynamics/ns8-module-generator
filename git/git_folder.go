@@ -3,6 +3,7 @@ package git
 import (
 	"fmt"
 	"ns8-module-generator/utils"
+	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
@@ -93,12 +94,14 @@ func GitPushToRemote() error {
 	if err != nil {
 		return fmt.Errorf("An error occurred while adding remote config: %v", err)
 	}
+	fmt.Print("Your github username: "+utils.GithubUsername + "\n")
 	err = repo.Push(&git.PushOptions{
 		RemoteName: "origin",
 		Auth: &http.BasicAuth{
-			Username: utils.GithubUsername,
+			Username: utils.GithubToken,
 			Password: utils.GithubToken,
 		},
+		Progress: os.Stdout,		
 	})
 	if err != nil {
 		return fmt.Errorf("An error occurred while pushing online: %v", err)
