@@ -34,5 +34,14 @@ func CleanUpKickstartFiles() {
 		if err != nil {
 			fmt.Printf("An error occurred while deleting %s : %v \n", filePath, err)
 		}
+		// Git add the removed file
+		err = git.GitAddFile(filePath)
+		if err != nil {
+			fmt.Printf("An error occurred: %v", err)
+		}
+	}
+	err := git.GitCommitFiles("Removed kickstart files")
+	if err != nil {
+		fmt.Printf("An eeror occurred while committing", err)
 	}
 }
