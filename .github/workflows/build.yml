@@ -1,3 +1,4 @@
+
 name: Build and Release
 
 on:
@@ -11,8 +12,21 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest] # Add more OS if needed
-
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            GOOS: linux
+            GOARCH: amd64
+            EXT: ""
+          - os: windows-latest
+            GOOS: windows
+            GOARCH: amd64
+            EXT: .exe
+          - os: macos-latest
+            GOOS: darwin
+            GOARCH: amd64
+            EXT: ""
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,35 +34,24 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23" # Change to your Go version
+          go-version: "1.23"
           check-latest: true
 
       - name: Build
-        shell: pwsh
         run: |
-          if ($env:RUNNER_OS -eq "Windows") {
-            $env:GOOS = "windows"
-            $env:GOARCH = "amd64"
-            go build -o ns8-module-generator.exe 
-          } else {
-            $env:GOOS = "linux"
-            $env:GOARCH = "amd64"
-            go build -o ns8-module-generator
-          }
+          export GOOS=${{ matrix.GOOS }}
+          export GOARCH=${{ matrix.GOARCH }}
+          go build -o ns8-module-generator${{ matrix.EXT }}
+
       - name: Archive the binaries
-        shell: pwsh
         run: |
           mkdir -p release
-          if($env:RUNNER_OS -eq "Windows"){
-            mv ns8-module-generator.exe release/
-          } else {
-            mv ns8-module-generator release/
-          }
+          mv ns8-module-generator${{ matrix.EXT }} release/
 
       - name: Upload Release Assets
         uses: actions/upload-artifact@v4
         with:
-          name: binaries-${{ runner.os }}-${{ github.run_id }}
+          name: binaries-${{ matrix.os }}-${{ github.run_id }}
           path: release/
 
   release:
@@ -58,11 +61,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries-${{ matrix.os }}-${{ github.run_id }}
+          path: release/
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag: ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}
           files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
