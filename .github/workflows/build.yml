@@ -1,4 +1,5 @@
 
+
 name: Build and Release
 
 on:
@@ -9,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-
+    
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -54,8 +55,9 @@ jobs:
       - name: Upload Release Assets
         uses: actions/upload-artifact@v4
         with:
-          name: binaries-${{ matrix.os }}-${{ github.run_id }}
+          name: binaries-${{ matrix.os }}
           path: release/*
+          retention-days: 1 # Keep artifacts for 1 day (adjust if needed)
 
   release:
     runs-on: ubuntu-latest
@@ -64,18 +66,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Artifacts
+      - name: Download Artifacts (Linux)
         uses: actions/download-artifact@v4
         with:
-          name: binaries-${{ matrix.os }}-${{ github.run_id }}
-          path: release/
+          name: binaries-ubuntu-latest
+          path: release/linux
+
+      - name: Download Artifacts (Windows)
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries-windows-latest
+          path: release/windows
+
+      - name: Download Artifacts (MacOS)
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries-macos-latest
+          path: release/macos
 
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          files: release/*
+          files: release/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
