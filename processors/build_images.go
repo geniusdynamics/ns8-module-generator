@@ -11,8 +11,9 @@ import (
 
 func ProcessBuildImage() error {
 	images := formatters.GetImagesWithRepository()
+	imageName := utils.AppName
 	replacers := map[string]string{
-		"{{ IMAGE_NAME }}":   "nginx",
+		"{{ IMAGE_NAME }}":   imageName,
 		"{{ GITHUB_OWNER }}": "geniusdynamics",
 		"{{ IMAGES }}":       strings.Join(images, " "),
 	}
