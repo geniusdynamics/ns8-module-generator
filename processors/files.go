@@ -88,6 +88,15 @@ func CopyDirectory() error {
 				if err != nil {
 					return fmt.Errorf("failed to copy file content from %s to %s: %v", srcPath, dstPath, err)
 				}
+				
+				// Set 700 Permission for specific file
+				if strings.Contains(relPath, "imageroot/actions/") || strings.Contains(relPath, "imageroot/bin/"){
+					print("Added permissions for: "+dstPath)
+					err = os.Chmod(dstPath,0700)
+					if err != nil {
+						return fmt.Errorf("Failed to set 700 permission for %s: %v", dstPath, err)
+					}
+				}
 				// Git add File
 				err = git.GitAddFile(dstPath)
 				if err != nil {
