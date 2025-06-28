@@ -1,10 +1,8 @@
-
 package commands
 
 import (
 	"fmt"
 	"log"
-	"ns8-module-generator/utils"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -16,7 +14,7 @@ type GithubUserName struct {
 	value     string
 }
 
-func InputGithubUsername() {
+func InputGithubUsername() (string, error) {
 	p := tea.NewProgram(githubUsernameInputModel())
 	input, err := p.Run()
 	if err != nil {
@@ -24,8 +22,9 @@ func InputGithubUsername() {
 	}
 	inputModel, ok := input.(GithubUserName)
 	if ok {
-		utils.SetGithubUsername(inputModel.value)
+		return inputModel.value, nil
 	}
+	return "", fmt.Errorf("error reading github username")
 }
 
 func githubUsernameInputModel() GithubUserName {

@@ -3,7 +3,6 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"ns8-module-generator/utils"
 	"os"
 	"strings"
 	"time"
@@ -87,7 +86,7 @@ func (m FilePicker) View() string {
 	return s.String()
 }
 
-func PickFile() {
+func PickFile() (string, error) {
 	fp := filepicker.New()
 	fp.AllowedTypes = []string{".yaml"}
 	fp.CurrentDirectory, _ = os.UserHomeDir()
@@ -95,9 +94,12 @@ func PickFile() {
 	m := FilePicker{
 		filepicker: fp,
 	}
-	tm, _ := tea.NewProgram(&m).Run()
+	tm, err := tea.NewProgram(&m).Run()
 	mm := tm.(FilePicker)
 	fmt.Print("\033[H\033[2J")
 	fmt.Println("\n  You selected: " + m.filepicker.Styles.Selected.Render(mm.selectedFile) + "\n")
-	utils.SetDockerComposePath(mm.selectedFile)
+	if err != nil {
+		return "", fmt.Errorf("An error occurred while selecting file path")
+	}
+	return mm.selectedFile, nil
 }

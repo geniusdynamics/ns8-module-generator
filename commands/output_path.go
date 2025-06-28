@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"log"
-	"ns8-module-generator/utils"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,7 +14,7 @@ type OutputPathInputText struct {
 	value     string
 }
 
-func InputOutputDirPath() {
+func InputOutputDirPath() (string, error) {
 	p := tea.NewProgram(outputPathInputModel())
 	input, err := p.Run()
 	if err != nil {
@@ -23,8 +22,9 @@ func InputOutputDirPath() {
 	}
 	inputModel, ok := input.(OutputPathInputText)
 	if ok {
-		utils.SetOutputDir(inputModel.value)
+		return inputModel.value, nil
 	}
+	return "", fmt.Errorf("Error occurred while reading output dir")
 }
 
 func outputPathInputModel() OutputPathInputText {

@@ -2,9 +2,9 @@ package processors
 
 import (
 	"fmt"
+	"ns8-module-generator/config"
 	"ns8-module-generator/git"
 	"ns8-module-generator/parser"
-	"ns8-module-generator/utils"
 	"os"
 )
 
@@ -13,11 +13,11 @@ func ReplaceAllKickstart(appName string) error {
 		"kickstart": appName,
 	}
 
-	err := parser.ReplaceInAllFiles(utils.OutputDir, replacers)
+	err := parser.ReplaceInAllFiles(config.Cfg.OutputDir, replacers)
 	if err != nil {
 		return fmt.Errorf("An error occurred: %v", err)
 	}
-	err = git.GitCommitFiles("refactor: replaced all kickstart names with " + utils.AppName)
+	err = git.GitCommitFiles("refactor: replaced all kickstart names with " + config.Cfg.AppName)
 	if err != nil {
 		return err
 	}
@@ -26,8 +26,8 @@ func ReplaceAllKickstart(appName string) error {
 
 func CleanUpKickstartFiles() {
 	filePaths := []string{
-		utils.OutputDir + "/imageroot/systemd/user/kickstart.service",
-		utils.OutputDir + "/imageroot/systemd/user/kickstart-app.service",
+		config.Cfg.OutputDir + "/imageroot/systemd/user/kickstart.service",
+		config.Cfg.OutputDir + "/imageroot/systemd/user/kickstart-app.service",
 	}
 	for _, filePath := range filePaths {
 		err := os.Remove(filePath)

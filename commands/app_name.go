@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"log"
-	"ns8-module-generator/utils"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,16 +14,17 @@ type TextInput struct {
 	value     string
 }
 
-func InputAppName() {
+func InputAppName() (string, error) {
 	p := tea.NewProgram(textInputModel())
 	input, err := p.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
 	inputModel, ok := input.(TextInput)
-	if ok {
-		utils.SetAppName(inputModel.value)
+	if !ok {
+		return "", fmt.Errorf("Could not cast bubble teamodel")
 	}
+	return inputModel.value, nil
 }
 
 func textInputModel() TextInput {

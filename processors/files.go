@@ -4,8 +4,8 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"ns8-module-generator/config"
 	"ns8-module-generator/git"
-	"ns8-module-generator/utils"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,11 +14,11 @@ import (
 // CopyDirectory copies the template directory to the output directory with a progress indicator.
 func CopyDirectory() error {
 	// Create the output directory
-	err := os.MkdirAll(utils.OutputDir, 0755)
+	err := os.MkdirAll(config.Cfg.OutputDir, 0755)
 	if err != nil {
 		return fmt.Errorf("error while creating the output directory: %v", err)
 	}
-	if utils.AppGitInit == "yes" {
+	if config.Cfg.AppGitInit {
 		// Initialize git repo
 		err = git.InitializeGit()
 		if err != nil {
@@ -28,7 +28,7 @@ func CopyDirectory() error {
 
 	// Count total number of files and directories to copy
 	var totalItems int
-	err = filepath.WalkDir(utils.TemplateDir, func(_ string, info os.DirEntry, _ error) error {
+	err = filepath.WalkDir(config.Cfg.TemplateDir, func(_ string, info os.DirEntry, _ error) error {
 		if !info.IsDir() {
 			totalItems++
 		}
@@ -49,7 +49,7 @@ func CopyDirectory() error {
 
 	// Walk through the source directory
 	err = filepath.WalkDir(
-		utils.TemplateDir,
+		config.Cfg.TemplateDir,
 		func(srcPath string, info os.DirEntry, err error) error {
 			if err != nil {
 				return fmt.Errorf("error walking through the source directory: %v", err)
@@ -61,8 +61,8 @@ func CopyDirectory() error {
 			}
 
 			// Create the destination path
-			relPath, _ := filepath.Rel(utils.TemplateDir, srcPath)
-			dstPath := filepath.Join(utils.OutputDir, relPath)
+			relPath, _ := filepath.Rel(config.Cfg.TemplateDir, srcPath)
+			dstPath := filepath.Join(config.Cfg.OutputDir, relPath)
 
 			if info.IsDir() {
 				// Create directory in the destination
@@ -88,11 +88,11 @@ func CopyDirectory() error {
 				if err != nil {
 					return fmt.Errorf("failed to copy file content from %s to %s: %v", srcPath, dstPath, err)
 				}
-				
+
 				// Set 700 Permission for specific file
-				if strings.Contains(relPath, "imageroot/actions/") || strings.Contains(relPath, "imageroot/bin/"){
-					print("Added permissions for: "+dstPath)
-					err = os.Chmod(dstPath,0700)
+				if strings.Contains(relPath, "imageroot/actions/") || strings.Contains(relPath, "imageroot/bin/") {
+					print("Added permissions for: " + dstPath)
+					err = os.Chmod(dstPath, 0700)
 					if err != nil {
 						return fmt.Errorf("Failed to set 700 permission for %s: %v", dstPath, err)
 					}
@@ -133,12 +133,12 @@ func ZipOutput(name string) error {
 	defer zipWrite.Close()
 
 	// Walk Through the output directory
-	err = filepath.WalkDir(utils.OutputDir, func(path string, info os.DirEntry, err error) error {
+	err = filepath.WalkDir(config.Cfg.OutputDir, func(path string, info os.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("error walking through the output directory: %v", err)
 		}
 		// Create the file in the zip
-		relPath, _ := filepath.Rel(utils.OutputDir, path)
+		relPath, _ := filepath.Rel(config.Cfg.OutputDir, path)
 		if info.IsDir() {
 			relPath += "/"
 		}
@@ -168,7 +168,7 @@ func ZipOutput(name string) error {
 
 // CleanOutputDirectory Clean the output directory
 func CleanOutputDirectory() error {
-	err := os.RemoveAll(utils.OutputDir)
+	err := os.RemoveAll(config.Cfg.OutputDir)
 	if err != nil {
 		return fmt.Errorf("error cleaning output directory: %v", err)
 	}

@@ -2,15 +2,12 @@ package processors
 
 import (
 	"fmt"
+	"ns8-module-generator/config"
 	"ns8-module-generator/git"
 	"ns8-module-generator/parser"
-	"ns8-module-generator/utils"
-	"strings"
 )
 
-var APP_NAME = utils.AppName
-
-func ProcessNs8Module() {
+func ProcessNs8Module(cfg *config.Config) {
 	// Create a output Directory
 	// Then do an initial commit
 	err := CopyDirectory()
@@ -23,13 +20,13 @@ func ProcessNs8Module() {
 		fmt.Printf("error occurred while commiting files: %s", err)
 	}
 
-	parser.DockerComposeParser(utils.DockerComposePath)
+	parser.DockerComposeParser(cfg.DockerComposePath)
 	err = ProcessBuildImage()
 	if err != nil {
 		fmt.Printf("error while processing build image: %v", err)
 	}
 
-	err = ReplaceAllKickstart(utils.AppName)
+	err = ReplaceAllKickstart(cfg.AppName)
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 	}
@@ -37,11 +34,11 @@ func ProcessNs8Module() {
 	CleanUpKickstartFiles()
 
 	// Do git things
-	if strings.ToLower(utils.AppGitInit) == "yes" {
-		git.InitilaizeGitClient()
+	if cfg.AppGitInit {
+		git.InitilaizeGitClient(cfg)
 
 		// Push to git Online
-		err = git.CreateRepository()
+		err = git.CreateRepository(cfg)
 		if err != nil {
 			fmt.Printf("An error occurred while creating repo online: %v \n", err)
 			return

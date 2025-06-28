@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"log"
-	"ns8-module-generator/utils"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,7 +14,7 @@ type GithubTokenInput struct {
 	value     string
 }
 
-func InputGithubToken() {
+func InputGithubToken() (string, error) {
 	p := tea.NewProgram(githubTokenInputModel())
 	input, err := p.Run()
 	if err != nil {
@@ -23,8 +22,9 @@ func InputGithubToken() {
 	}
 	inputModel, ok := input.(GithubTokenInput)
 	if ok {
-		utils.SetGithubToken(inputModel.value)
+		return inputModel.value, nil
 	}
+	return "", fmt.Errorf("error reading the github token")
 }
 
 func githubTokenInputModel() GithubTokenInput {

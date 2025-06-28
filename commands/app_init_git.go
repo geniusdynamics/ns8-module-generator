@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"log"
-	"ns8-module-generator/utils"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,7 +14,7 @@ type AppInitGitTextInput struct {
 	value     string
 }
 
-func InputAppGitInit() {
+func InputAppGitInit() (string, error) {
 	p := tea.NewProgram(appGitInitModel())
 	input, err := p.Run()
 	if err != nil {
@@ -23,8 +22,9 @@ func InputAppGitInit() {
 	}
 	inputModel, ok := input.(AppInitGitTextInput)
 	if ok {
-		utils.SetAppGitInit(inputModel.value)
+		return inputModel.value, nil
 	}
+	return "", fmt.Errorf("an error occurred while initialising git")
 }
 
 func appGitInitModel() AppInitGitTextInput {

@@ -2,7 +2,7 @@ package generators
 
 import (
 	"fmt"
-	"ns8-module-generator/utils"
+	"ns8-module-generator/config"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ func GenerateNS8VolumeFlags(volumes []string) string {
 		if !strings.HasPrefix(volumeName, "./") || !strings.HasPrefix(volumeName, "/") {
 
 			err := AddToBackup(
-				utils.OutputDir+"/imageroot/etc/state-include.conf",
+				config.Cfg.OutputDir+"/imageroot/etc/state-include.conf",
 				fmt.Sprintf("volumes/%s", getVolumeName(volume)),
 			)
 			if err != nil {

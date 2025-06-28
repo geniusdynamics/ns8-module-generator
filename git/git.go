@@ -3,22 +3,21 @@ package git
 import (
 	"context"
 	"fmt"
-	"ns8-module-generator/utils"
+	"ns8-module-generator/config"
 
 	"github.com/google/go-github/v66/github"
 )
 
 var client *github.Client
 
-func InitilaizeGitClient() {
+func InitilaizeGitClient(cfg *config.Config) {
 	// Get Github token
-	token := utils.GithubToken
 	// Create new git client
-	client = github.NewClient(nil).WithAuthToken(token)
+	client = github.NewClient(nil).WithAuthToken(cfg.GithubToken)
 }
 
-func CreateRepository() error {
-	name := utils.AppName
+func CreateRepository(cfg *config.Config) error {
+	name := cfg.AppName
 	repo := &github.Repository{
 		Name:          github.String("ns8-" + name),
 		Private:       github.Bool(false),
@@ -26,7 +25,7 @@ func CreateRepository() error {
 	}
 	ctx := context.Background()
 	// Return response err and repo details
-	repo, _, err := client.Repositories.Create(ctx, utils.GithubOrganizationName, repo)
+	repo, _, err := client.Repositories.Create(ctx, cfg.GithubOrganizationName, repo)
 	if err != nil {
 		return fmt.Errorf(
 			"An error occurred while occurred while creating the Repository: %v \n",
@@ -35,7 +34,7 @@ func CreateRepository() error {
 	}
 	// Print the repository URL
 	fmt.Printf("The Git URL: %s \n", repo.GetHTMLURL())
-	utils.SetGitRemoteUrl(repo.GetHTMLURL())
+	cfg.GitRemoteUrl = repo.GetHTMLURL()
 
 	return nil
 }

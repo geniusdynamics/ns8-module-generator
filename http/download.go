@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"ns8-module-generator/config"
 	"ns8-module-generator/processors"
-	"ns8-module-generator/utils"
 	"os"
 
 	"github.com/charmbracelet/bubbles/progress"
@@ -64,7 +64,7 @@ func (m ProgressModel) View() string {
 
 func DownloadTemplate() {
 	// Fetch the file size
-	resp, err := http.Head(utils.TemplateZipURL)
+	resp, err := http.Head(config.Cfg.TemplateZipURL)
 	if err != nil {
 		fmt.Printf("Failed to get file size: %v\n", err)
 		return
@@ -81,7 +81,7 @@ func DownloadTemplate() {
 
 	// Start downloading and show progress
 	go func() {
-		resp, err := http.Get(utils.TemplateZipURL)
+		resp, err := http.Get(config.Cfg.TemplateZipURL)
 		if err != nil {
 			p.Send(errMsg(err))
 			return
@@ -111,7 +111,7 @@ func DownloadTemplate() {
 
 		// Unzip the files and update directory
 		processors.UnzipFiles("template", "templatezip.zip")
-		utils.SetTemplateDir("template/ns8-generator-module-template-0.0.1")
+		config.Cfg.TemplateDir = "template/ns8-generator-module-template-0.0.1"
 		p.Send(progressMsg(1.0)) // Mark as complete
 	}()
 

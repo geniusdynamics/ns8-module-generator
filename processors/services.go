@@ -3,11 +3,11 @@ package processors
 import (
 	"bufio"
 	"fmt"
+	"ns8-module-generator/config"
 	"ns8-module-generator/formatters"
 	"ns8-module-generator/generators"
 	"ns8-module-generator/git"
 	"ns8-module-generator/parser"
-	"ns8-module-generator/utils"
 	"os"
 	"strings"
 )
@@ -158,7 +158,7 @@ func GenerateMainService() {
 
 	// Read The Service file
 	service, e := readServiceFileContents(
-		utils.OutputDir + "/imageroot/systemd/user/kickstart.service",
+		config.Cfg.OutputDir + "/imageroot/systemd/user/kickstart.service",
 	)
 	if e != nil {
 		fmt.Printf("An error occurred: %v", e)
@@ -173,14 +173,14 @@ func GenerateMainService() {
 	allServices := generateRequiredServices(images)
 	// Replacers
 	replacers := map[string]string{
-		"{{ SERVICE_NAME }}":      utils.AppName,
+		"{{ SERVICE_NAME }}":      config.Cfg.AppName,
 		"{{ REQUIRED_SERVICES }}": allServices,
 		"{{ BEFORE_SERVICES }}":   allServices,
 	}
 	formattedContent := formatters.ReplacePlaceHolders(service, replacers)
 	print(formattedContent)
 
-	err := writeServiceFile(formattedContent, utils.AppName+".service")
+	err := writeServiceFile(formattedContent, config.Cfg.AppName+".service")
 	if err != nil {
 		fmt.Printf("An error occurred while writing to service: %v", err)
 		return
@@ -190,7 +190,7 @@ func GenerateMainService() {
 
 func GenerateServicesFiles(allServices string) {
 	serviceContent, e := readServiceFileContents(
-		utils.OutputDir + "/imageroot/systemd/user/kickstart-app.service",
+		config.Cfg.OutputDir + "/imageroot/systemd/user/kickstart-app.service",
 	)
 	if e != nil {
 		fmt.Printf("An error occurred reading kickstart-app.service: %v", e)
@@ -202,23 +202,23 @@ func GenerateServicesFiles(allServices string) {
 		env, err := generators.GenerateEnvFileContents(
 			service.Name,
 			service.Environment,
-			utils.OutputDir+"/imageroot/actions/configure-module/10configure_environment_vars",
+			config.Cfg.OutputDir+"/imageroot/actions/configure-module/10configure_environment_vars",
 		)
 		if err != nil {
 			fmt.Printf("An error occurred: %v", err)
 		}
 		replacers := map[string]string{
 			"{{ SERVICE_NAME }}":      service.Name + "-app",
-			"{{ MAIN_SERVICE_NAME }}": utils.AppName,
+			"{{ MAIN_SERVICE_NAME }}": config.Cfg.AppName,
 			"{{ IMAGE_NAME }}":        formatters.ImageNameWithSuffix(service.Image),
 			"{{ OTHER_COMMANDS }}":    "",
 			"{{ VOLUMES }}":           generators.GenerateNS8VolumeFlags(service.Volumes),
 			"{{ AFTER_SERVICES }}": generators.GenerateNS8AfterServices(
 				service.DependsOn,
 				allServices,
-				utils.AppName+".service",
+				config.Cfg.AppName+".service",
 			),
-			"{{ BINDS_TO_SERVICES }}": utils.AppName + ".service",
+			"{{ BINDS_TO_SERVICES }}": config.Cfg.AppName + ".service",
 			"{{ ENV_FILES }}":         env,
 		}
 		formattedServiceContent := formatters.ReplacePlaceHolders(serviceContent, replacers)
@@ -228,7 +228,7 @@ func GenerateServicesFiles(allServices string) {
 		err = generators.GenerateGetConfigurationContent(
 			service.Name,
 			service.Environment,
-			utils.OutputDir+"/imageroot/actions/get-configuration/20read",
+			config.Cfg.OutputDir+"/imageroot/actions/get-configuration/20read",
 		)
 		if err != nil {
 			fmt.Printf("An error occured while writing get configuration content: %v\n", err)
@@ -245,7 +245,7 @@ func GenerateServicesFiles(allServices string) {
 
 	}
 	// Add Json dump at the end
-	err := generators.AddJsonDump(utils.OutputDir + "/imageroot/actions/get-configuration/20read")
+	err := generators.AddJsonDump(config.Cfg.OutputDir + "/imageroot/actions/get-configuration/20read")
 	if err != nil {
 		fmt.Printf("An error occurred adding json dump: %v\n", err)
 		return
@@ -253,7 +253,7 @@ func GenerateServicesFiles(allServices string) {
 }
 
 func writeServiceFile(content string, fileName string) error {
-	filePath := utils.OutputDir + "/imageroot/systemd/user/" + fileName
+	filePath := config.Cfg.OutputDir + "/imageroot/systemd/user/" + fileName
 	err := os.WriteFile(filePath, []byte(content), 0644)
 	if err != nil {
 		return err
@@ -262,7 +262,7 @@ func writeServiceFile(content string, fileName string) error {
 	if err != nil {
 		return err
 	}
-	err = git.GitCommitFiles("feat(service): added "+ fileName)
+	err = git.GitCommitFiles("feat(service): added " + fileName)
 	if err != nil {
 		return err
 	}

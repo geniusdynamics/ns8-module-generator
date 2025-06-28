@@ -2,28 +2,25 @@ package main
 
 import (
 	"ns8-module-generator/commands"
+	"ns8-module-generator/config"
 	"ns8-module-generator/http"
 	"ns8-module-generator/processors"
-	"ns8-module-generator/utils"
 	"os"
 )
 
 func main() {
-	// utils.SetOutputDir("output")
-	utils.SetTemplateDir("template")
-	// Set utils
-	utils.SetTemplateZipUrl(
-		"https://github.com/geniusdynamics/ns8-generator-module-template/archive/refs/tags/v0.0.1.zip",
-	)
+	cfg := config.New()
+	config.Cfg = cfg
+	// config.Cfg.SetOutputDir("output")
 
-	_, err := os.Stat(utils.TemplateDir)
+	_, err := os.Stat(cfg.TemplateDir)
 	// Check if Template Dir exists
 	if os.IsNotExist(err) {
 		http.DownloadTemplate()
 	}
-	commands.InputPrompts()
-	// for utils.DockerComposePath == "" {
+	commands.InputPrompts(cfg)
+	// for config.Cfg.DockerComposePath == "" {
 	// 	commands.InputPrompts()
 	// }
-	processors.ProcessNs8Module()
+	processors.ProcessNs8Module(cfg)
 }
