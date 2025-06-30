@@ -62,12 +62,11 @@ func (m ProgressModel) View() string {
 	return fmt.Sprintf("Downloading template...\n%s", m.progress.View())
 }
 
-func DownloadTemplate() {
+func DownloadTemplate() error {
 	// Fetch the file size
 	resp, err := http.Head(config.Cfg.TemplateZipURL)
 	if err != nil {
-		fmt.Printf("Failed to get file size: %v\n", err)
-		return
+		return fmt.Errorf("Failed to get file size: %v", err)
 	}
 	defer resp.Body.Close()
 
@@ -79,11 +78,15 @@ func DownloadTemplate() {
 	}
 	p := tea.NewProgram(m)
 
+	errChan := make(chan error, 1)
+
 	// Start downloading and show progress
 	go func() {
+		defer close(errChan)
 		resp, err := http.Get(config.Cfg.TemplateZipURL)
 		if err != nil {
 			p.Send(errMsg(err))
+			errChan <- fmt.Errorf("Failed to download template: %v", err)
 			return
 		}
 		defer resp.Body.Close()
@@ -91,6 +94,7 @@ func DownloadTemplate() {
 		outFile, err := os.Create("templatezip1.tmp")
 		if err != nil {
 			p.Send(errMsg(err))
+			errChan <- fmt.Errorf("Failed to create temporary file: %v", err)
 			return
 		}
 		defer outFile.Close()
@@ -100,25 +104,29 @@ func DownloadTemplate() {
 		_, err = io.Copy(outFile, progressReader)
 		if err != nil {
 			p.Send(errMsg(err))
+			errChan <- fmt.Errorf("Failed to copy file content: %v", err)
 			return
 		}
 
 		// Rename to final zip file
 		if err := os.Rename("templatezip1.tmp", "templatezip.zip"); err != nil {
 			p.Send(errMsg(err))
+			errChan <- fmt.Errorf("Failed to rename temporary file: %v", err)
 			return
 		}
 
 		// Unzip the files and update directory
 		processors.UnzipFiles("template", "templatezip.zip")
-		config.Cfg.TemplateDir = "template/ns8-generator-module-template-0.0.1"
 		p.Send(progressMsg(1.0)) // Mark as complete
+		errChan <- nil
 	}()
 
 	// Start the Bubble Tea program
 	if _, err := p.Run(); err != nil {
-		fmt.Printf("Error running progress UI: %v\n", err)
+		return fmt.Errorf("Error running progress UI: %v", err)
 	}
+
+	return <-errChan
 }
 
 // ProgressReader implements io.Reader with Bubble Tea progress updates

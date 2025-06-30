@@ -5,10 +5,12 @@ import (
 	"ns8-module-generator/config"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	gitConfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 )
 
 func InitializeGit() error {
@@ -95,14 +97,26 @@ func GitPushToRemote() error {
 		return fmt.Errorf("An error occurred while adding remote config: %v", err)
 	}
 	fmt.Print("Your github username: " + config.Cfg.GithubUsername + "\n")
-	err = repo.Push(&git.PushOptions{
+
+	pushOptions := &git.PushOptions{
 		RemoteName: "origin",
-		Auth: &http.BasicAuth{
+		Progress:   os.Stdout,
+	}
+
+	if strings.ToLower(config.Cfg.GitAuthMethod) == "ssh" {
+		publicKeys, err := ssh.NewPublicKeysFromFile("git", "~/.ssh/id_rsa", "")
+		if err != nil {
+			return fmt.Errorf("An error occurred while getting public keys: %v", err)
+		}
+		pushOptions.Auth = publicKeys
+	} else {
+		pushOptions.Auth = &http.BasicAuth{
 			Username: config.Cfg.GithubToken,
 			Password: config.Cfg.GithubToken,
-		},
-		Progress: os.Stdout,
-	})
+		}
+	}
+
+	err = repo.Push(pushOptions)
 	if err != nil {
 		return fmt.Errorf("An error occurred while pushing online: %v", err)
 	}

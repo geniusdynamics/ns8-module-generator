@@ -13,6 +13,7 @@ type Config struct {
 	TemplateDir            string
 	TemplateZipURL         string
 	GitRemoteUrl           string
+	GitAuthMethod          string
 
 	GitWorkTree  *git.Worktree
 	GitLocalRepo *git.Repository

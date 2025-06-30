@@ -205,10 +205,21 @@ func UnzipFiles(destPath, zipPath string) {
 	}
 	defer archive.Close()
 
+	// Determine the root directory of the zip file
+	root := ""
+	if len(archive.File) > 0 {
+		root = filepath.Dir(archive.File[0].Name)
+	}
+
 	// Loop through files in the archive
 	for _, f := range archive.File {
-		// Strip out any root directory from each file's name to avoid nested directories
-		filePath := filepath.Join(destPath, f.Name)
+		// Strip the root directory from the file path
+		name := strings.TrimPrefix(f.Name, root)
+		if name == "" {
+			continue
+		}
+
+		filePath := filepath.Join(destPath, name)
 
 		// Ensure file paths are valid and inside the destination directory
 		if !strings.HasPrefix(filePath, filepath.Clean(destPath)+string(os.PathSeparator)) {

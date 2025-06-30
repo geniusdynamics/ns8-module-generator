@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"ns8-module-generator/config"
+	"strings"
 
 	"github.com/google/go-github/v66/github"
 )
@@ -34,7 +35,11 @@ func CreateRepository(cfg *config.Config) error {
 	}
 	// Print the repository URL
 	fmt.Printf("The Git URL: %s \n", repo.GetHTMLURL())
-	cfg.GitRemoteUrl = repo.GetHTMLURL()
+	if strings.ToLower(config.Cfg.GitAuthMethod) == "ssh" {
+		cfg.GitRemoteUrl = repo.GetSSHURL()
+	} else {
+		cfg.GitRemoteUrl = repo.GetHTMLURL()
+	}
 
 	return nil
 }
