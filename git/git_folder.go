@@ -104,11 +104,11 @@ func GitPushToRemote() error {
 	}
 
 	if strings.ToLower(config.Cfg.GitAuthMethod) == "ssh" {
-		publicKeys, err := ssh.NewPublicKeysFromFile("git", "~/.ssh/id_rsa", "")
+		auth, err := sshAuth() // Use the new sshAuth function
 		if err != nil {
-			return fmt.Errorf("An error occurred while getting public keys: %v", err)
+			return fmt.Errorf("An error occurred while setting up SSH authentication: %v", err)
 		}
-		pushOptions.Auth = publicKeys
+		pushOptions.Auth = auth
 	} else {
 		pushOptions.Auth = &http.BasicAuth{
 			Username: config.Cfg.GithubToken,
@@ -122,4 +122,34 @@ func GitPushToRemote() error {
 	}
 
 	return nil
+}
+
+func sshAuth() (ssh.AuthMethod, error) {
+	sshAgent, err := ssh.NewSSHAgentAuth("git")
+	if err == nil {
+		return sshAgent, nil
+	}
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("could not get user home directory: %w", err)
+	}
+
+	keyPaths := []string{
+		filepath.Join(homeDir, ".ssh", "id_rsa"),
+		filepath.Join(homeDir, ".ssh", "id_dsa"),
+		filepath.Join(homeDir, ".ssh", "id_ecdsa"),
+		filepath.Join(homeDir, ".ssh", "id_ed25519"),
+	}
+
+	for _, keyPath := range keyPaths {
+		if _, err := os.Stat(keyPath); err == nil {
+			publicKeys, err := ssh.NewPublicKeysFromFile("git", keyPath, "")
+			if err == nil {
+				return publicKeys, nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("no SSH agent found and no suitable SSH key found in common locations")
 }

@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -33,6 +34,7 @@ func appGitInitModel() AppInitGitTextInput {
 	ti.Focus()
 	ti.CharLimit = 50
 	ti.Width = 20
+	ti.SetValue("no") // Set default value
 	return AppInitGitTextInput{
 		textInput: ti,
 		err:       nil,
@@ -49,7 +51,15 @@ func (m AppInitGitTextInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyEnter:
+			currentValue := strings.ToLower(m.textInput.Value())
+			if currentValue != "yes" && currentValue != "no" {
+				m.err = fmt.Errorf("Please enter 'yes' or 'no'.")
+				return m, nil
+			}
+			m.value = currentValue
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
 			m.value = m.textInput.Value()
 			return m, tea.Quit
 		}

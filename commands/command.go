@@ -10,11 +10,27 @@ type (
 )
 
 func InputPrompts(cfg *config.Config) error {
-	file, err := PickFile()
+	dockerComposeSource, err := InputDockerComposeSource()
 	if err != nil {
 		return err
 	}
-	cfg.DockerComposePath = file
+
+	if strings.ToLower(dockerComposeSource) == "remote" {
+		cfg.IsRemoteDockerCompose = true
+		dockerComposeUrl, err := InputDockerComposeUrl()
+		if err != nil {
+			return err
+		}
+		cfg.DockerComposePath = dockerComposeUrl
+	} else {
+		cfg.IsRemoteDockerCompose = false
+		file, err := PickFile()
+		if err != nil {
+			return err
+		}
+		cfg.DockerComposePath = file
+	}
+
 	appName, err := InputAppName()
 	if err != nil {
 		return err

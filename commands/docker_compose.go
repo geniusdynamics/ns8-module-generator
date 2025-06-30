@@ -3,11 +3,13 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/filepicker"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -102,4 +104,144 @@ func PickFile() (string, error) {
 		return "", fmt.Errorf("An error occurred while selecting file path")
 	}
 	return mm.selectedFile, nil
+}
+
+type DockerComposeSourceInput struct {
+	textInput textinput.Model
+	err       error
+	value     string
+}
+
+func InputDockerComposeSource() (string, error) {
+	p := tea.NewProgram(dockerComposeSourceInputModel())
+	input, err := p.Run()
+	if err != nil {
+		return "", err
+	}
+	inputModel, ok := input.(DockerComposeSourceInput)
+	if ok {
+		return inputModel.value, nil
+	}
+	return "", fmt.Errorf("error reading docker compose source")
+}
+
+func dockerComposeSourceInputModel() DockerComposeSourceInput {
+	ti := textinput.New()
+	ti.Placeholder = "local / remote"
+	ti.Focus()
+	ti.CharLimit = 10
+	ti.SetValue("local") // Set default value
+	return DockerComposeSourceInput{
+		textInput: ti,
+		err:       nil,
+	}
+}
+
+func (m DockerComposeSourceInput) Init() tea.Cmd {
+	return textinput.Blink
+}
+
+func (m DockerComposeSourceInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyEnter:
+			currentValue := strings.ToLower(m.textInput.Value())
+			if currentValue != "local" && currentValue != "remote" {
+				m.err = fmt.Errorf("Please enter 'local' or 'remote'.")
+				return m, nil
+			}
+			m.value = currentValue
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
+			m.value = m.textInput.Value()
+			return m, tea.Quit
+		}
+
+	case errMsg:
+		m.err = msg
+		return m, nil
+	}
+
+	m.textInput, cmd = m.textInput.Update(msg)
+	return m, cmd
+}
+
+func (m DockerComposeSourceInput) View() string {
+	return fmt.Sprintf(
+		"\nIs the Docker Compose file local or remote? (local/remote)\n\n%s",
+		m.textInput.View(),
+	) + "\n"
+}
+
+type DockerComposeUrlInput struct {
+	textInput textinput.Model
+	err       error
+	value     string
+}
+
+func InputDockerComposeUrl() (string, error) {
+	p := tea.NewProgram(dockerComposeUrlInputModel())
+	input, err := p.Run()
+	if err != nil {
+		return "", err
+	}
+	inputModel, ok := input.(DockerComposeUrlInput)
+	if ok {
+		return inputModel.value, nil
+	}
+	return "", fmt.Errorf("error reading docker compose URL")
+}
+
+func dockerComposeUrlInputModel() DockerComposeUrlInput {
+	ti := textinput.New()
+	ti.Placeholder = "Docker Compose URL"
+	ti.Focus()
+	ti.CharLimit = 255
+	return DockerComposeUrlInput{
+		textInput: ti,
+		err:       nil,
+	}
+}
+
+func (m DockerComposeUrlInput) Init() tea.Cmd {
+	return textinput.Blink
+}
+
+func (m DockerComposeUrlInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyEnter:
+			currentValue := m.textInput.Value()
+			_, err := url.ParseRequestURI(currentValue)
+			if err != nil {
+				m.err = fmt.Errorf("Invalid URL: %v", err)
+				return m, nil
+			}
+			m.value = currentValue
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
+			m.value = m.textInput.Value()
+			return m, tea.Quit
+		}
+
+	case errMsg:
+		m.err = msg
+		return m, nil
+	}
+
+	m.textInput, cmd = m.textInput.Update(msg)
+	return m, cmd
+}
+
+func (m DockerComposeUrlInput) View() string {
+	return fmt.Sprintf(
+		"\nEnter the URL of the Docker Compose file:\n\n%s",
+		m.textInput.View(),
+	) + "\n"
 }

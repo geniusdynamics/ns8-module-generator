@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,6 +33,7 @@ func gitAuthMethodModel() GitAuthMethodInput {
 	ti.Placeholder = "ssh / token"
 	ti.Focus()
 	ti.CharLimit = 10
+	ti.SetValue("token") // Set default value
 	return GitAuthMethodInput{
 		textInput: ti,
 		err:       nil,
@@ -48,7 +50,15 @@ func (m GitAuthMethodInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyEnter:
+			currentValue := strings.ToLower(m.textInput.Value())
+			if currentValue != "ssh" && currentValue != "token" {
+				m.err = fmt.Errorf("Please enter 'ssh' or 'token'.")
+				return m, nil
+			}
+			m.value = currentValue
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
 			m.value = m.textInput.Value()
 			return m, tea.Quit
 		}

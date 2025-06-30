@@ -146,3 +146,28 @@ func (r *ProgressReader) Read(p []byte) (int, error) {
 	r.Program.Send(progressMsg(progress))
 	return n, err
 }
+
+func DownloadFile(url, filePath string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to download file from %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download file from %s: received status code %d", url, resp.StatusCode)
+	}
+
+	out, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to create local file %s: %w", filePath, err)
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to write downloaded content to %s: %w", filePath, err)
+	}
+
+	return nil
+}

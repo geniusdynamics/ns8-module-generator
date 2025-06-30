@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -29,7 +30,7 @@ func InputAppName() (string, error) {
 
 func textInputModel() TextInput {
 	ti := textinput.New()
-	ti.Placeholder = "App Name"
+	ti.Placeholder = "my-awesome-app"
 	ti.Focus()
 	ti.CharLimit = 50
 	ti.Width = 20
@@ -49,7 +50,15 @@ func (m TextInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyEnter:
+			currentValue := m.textInput.Value()
+			if strings.Contains(currentValue, " ") {
+				m.err = fmt.Errorf("App name cannot contain spaces. Use hyphens instead.")
+				return m, nil
+			}
+			m.value = currentValue
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
 			m.value = m.textInput.Value()
 			return m, tea.Quit
 		}

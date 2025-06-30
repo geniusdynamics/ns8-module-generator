@@ -34,6 +34,7 @@ func githubTokenInputModel() GithubTokenInput {
 	ti.CharLimit = 255
 	ti.EchoMode = textinput.EchoPassword
 	ti.EchoCharacter = '*'
+	ti.SetValue("") // Set default value to empty
 	return GithubTokenInput{
 		textInput: ti,
 		err:       nil,

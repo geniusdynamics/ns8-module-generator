@@ -7,7 +7,7 @@ import (
 	"ns8-module-generator/parser"
 )
 
-func ProcessNs8Module(cfg *config.Config) error {
+func ProcessNs8Module(cfg *config.Config, composeFileContent []byte) error {
 	// Create a output Directory
 	// Then do an initial commit
 	err := CopyDirectory()
@@ -20,7 +20,11 @@ func ProcessNs8Module(cfg *config.Config) error {
 		return fmt.Errorf("error occurred while commiting files: %s", err)
 	}
 
-	parser.DockerComposeParser(cfg.DockerComposePath)
+	_, _, _, err = parser.ParseComposeContent(composeFileContent)
+	if err != nil {
+		return fmt.Errorf("Error parsing Docker Compose content: %v", err)
+	}
+
 	err = ProcessBuildImage()
 	if err != nil {
 		return fmt.Errorf("error while processing build image: %v", err)

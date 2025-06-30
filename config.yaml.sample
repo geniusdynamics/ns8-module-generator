@@ -1,0 +1,9 @@
+dockerComposePath: "./tests/compose.yaml"
+isRemoteDockerCompose: false
+appName: "my-ns8-module"
+outputDir: "./output"
+appGitInit: true
+githubOrganizationName: ""
+githubUsername: "your-github-username"
+githubToken: "your-github-token"
+gitAuthMethod: "token"

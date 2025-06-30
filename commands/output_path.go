@@ -29,10 +29,11 @@ func InputOutputDirPath() (string, error) {
 
 func outputPathInputModel() OutputPathInputText {
 	ti := textinput.New()
-	ti.Placeholder = "Output Path Directory"
+	ti.Placeholder = "generated-module"
 	ti.Focus()
 	ti.CharLimit = 50
 	ti.Width = 20
+	ti.SetValue("generated-module") // Set default value
 	return OutputPathInputText{
 		textInput: ti,
 		err:       nil,
@@ -49,7 +50,15 @@ func (m OutputPathInputText) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyEnter:
+			currentValue := m.textInput.Value()
+			if currentValue == "" {
+				m.err = fmt.Errorf("Output path cannot be empty.")
+				return m, nil
+			}
+			m.value = currentValue
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
 			m.value = m.textInput.Value()
 			return m, tea.Quit
 		}
