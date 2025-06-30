@@ -201,7 +201,7 @@ func GenerateServicesFiles(allServices string) {
 		// fmt.Printf("Enviroment : %v \n", service.Environment)
 		env, err := generators.GenerateEnvFileContents(
 			service.Name,
-			service.Environment,
+			service.ParsedEnvironment,
 			config.Cfg.OutputDir+"/imageroot/actions/configure-module/10configure_environment_vars",
 		)
 		if err != nil {
@@ -212,7 +212,7 @@ func GenerateServicesFiles(allServices string) {
 			"{{ MAIN_SERVICE_NAME }}": config.Cfg.AppName,
 			"{{ IMAGE_NAME }}":        formatters.ImageNameWithSuffix(service.Image),
 			"{{ OTHER_COMMANDS }}":    "",
-			"{{ VOLUMES }}":           generators.GenerateNS8VolumeFlags(service.Volumes),
+			"{{ VOLUMES }}":           generators.GenerateNS8VolumeFlags(service.ParsedVolumes),
 			"{{ AFTER_SERVICES }}": generators.GenerateNS8AfterServices(
 				service.DependsOn,
 				allServices,
@@ -227,7 +227,7 @@ func GenerateServicesFiles(allServices string) {
 		// Generate Get Configuration content
 		err = generators.GenerateGetConfigurationContent(
 			service.Name,
-			service.Environment,
+			service.ParsedEnvironment,
 			config.Cfg.OutputDir+"/imageroot/actions/get-configuration/20read",
 		)
 		if err != nil {

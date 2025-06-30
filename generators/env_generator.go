@@ -11,7 +11,7 @@ import (
 // Handle env from the envrioment service
 func GenerateEnvFileContents(
 	imageName string,
-	enviroments []string,
+	enviroments map[string]string,
 	filePath string,
 ) (string, error) {
 	println("Image Name Enviroment: " + imageName + " filePath: " + filePath)
@@ -19,14 +19,14 @@ func GenerateEnvFileContents(
 	var vars strings.Builder
 	envConfig := fmt.Sprintf("%s = { \n", imageName)
 	// Loop thru the enviroments
-	for _, env := range enviroments {
-		cleanEnv := cleanEnviromentString(env)
-		line := fmt.Sprintf("%s = data.get(\"%s\") \n", cleanEnv, cleanEnv)
+	for key, value := range enviroments {
+		line := fmt.Sprintf("%s = data.get(\"%s\", \"%s\") \n", key, key, value)
 		vars.WriteString(line)
-		envConfig += fmt.Sprintf(" \"%s\" : %s ,\n", cleanEnv, cleanEnv)
+		envConfig += fmt.Sprintf(" \"%s\" : %s ,\n", key, key)
 	}
 	// Close the env config
 	envConfig += "} \n"
+
 
 	// write to env file
 	envConfig += fmt.Sprintf("agent.write_envfile(\"%s.env\", %s)", imageName, imageName)
@@ -82,19 +82,11 @@ func GenerateEnvFileContents(
 	return envFileFlags, nil
 }
 
-// Remove amnything after =
-func cleanEnviromentString(env string) string {
-	// Split the string after the first =
-	parts := strings.SplitN(env, "=", 2)
-	if len(parts) > 1 {
-		return strings.TrimSpace(parts[0])
-	}
-	return ""
-}
+
 
 func GenerateGetConfigurationContent(
 	imageName string,
-	enviroments []string,
+	enviroments map[string]string,
 	filePath string,
 ) error {
 	fmt.Println("Generating Get Configurations")
@@ -105,23 +97,19 @@ func GenerateGetConfigurationContent(
 	// Read the env file
 	config.WriteString(fmt.Sprintf("\tdata = agent.read_envfile(\"%s.env\") \n", imageName))
 	// Loop thru the env vars and put in config obj
-	for _, env := range enviroments {
-		// clean the enviroment string
-		cleanEnv := cleanEnviromentString(env)
+	for key, value := range enviroments {
 		// Write string
 		config.WriteString(
-			fmt.Sprintf("\tconfig[\"%s\"] = data.get(\"%s\") \n", cleanEnv, cleanEnv),
+			fmt.Sprintf("\tconfig[\"%s\"] = data.get(\"%s\", \"%s\") \n", key, key, value),
 		)
 	}
 	// Write the else part to return an empty string
 	config.WriteString("else: \n")
 
 	// Loop thru the enviroments
-	for _, env := range enviroments {
-		// Clean env
-		cleanEnv := cleanEnviromentString(env)
+	for key, value := range enviroments {
 		// Add empty string
-		config.WriteString(fmt.Sprintf("\tconfig[\"%s\"] = \"\" \n", cleanEnv))
+		config.WriteString(fmt.Sprintf("\tconfig[\"%s\"] = \"%s\" \n", key, value))
 	}
 	// Read get the configuration file
 	// Check if file Exists

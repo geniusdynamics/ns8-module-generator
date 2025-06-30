@@ -7,24 +7,35 @@ import (
 )
 
 // Generate NS8 Volume flags eg --volume
-func GenerateNS8VolumeFlags(volumes []string) string {
+func GenerateNS8VolumeFlags(volumes []map[string]string) string {
 	formattedVolume := ""
-	for _, volume := range volumes {
-		formattedVolume += fmt.Sprintf(" --volume %s", volume)
-		volumeName := getVolumeName(volume)
-		// Checl volume name prefix
-		if !strings.HasPrefix(volumeName, "./") || !strings.HasPrefix(volumeName, "/") {
+	for _, volumeMap := range volumes {
+		source := volumeMap["source"]
+		target := volumeMap["target"]
+		typeOfVolume := volumeMap["type"]
 
+		volumeString := ""
+		if typeOfVolume == "bind" {
+			volumeString = fmt.Sprintf("%s:%s", source, target)
+		} else {
+			// Default to bind mount if type is not specified or unknown
+			volumeString = fmt.Sprintf("%s:%s", source, target)
+		}
+
+		formattedVolume += fmt.Sprintf(" --volume %s", volumeString)
+
+		// For backup, we still need the original volume name (source part)
+		volumeName := source
+		// Check volume name prefix
+		if !strings.HasPrefix(volumeName, "./") && !strings.HasPrefix(volumeName, "/") {
 			err := AddToBackup(
 				config.Cfg.OutputDir+"/imageroot/etc/state-include.conf",
-				fmt.Sprintf("volumes/%s", getVolumeName(volume)),
+				fmt.Sprintf("volumes/%s", volumeName),
 			)
 			if err != nil {
 				fmt.Printf("An error occurred while adding volume back up: %v", err)
 			}
-
 		}
-
 	}
 
 	return strings.TrimSpace(formattedVolume)
@@ -50,7 +61,4 @@ func GenerateNS8AfterServices(services interface{}, allServices, mainService str
 	return strings.TrimSpace(dependsOn)
 }
 
-func getVolumeName(volume string) string {
-	parts := strings.Split(volume, ":")
-	return strings.TrimSpace(parts[0])
-}
+
