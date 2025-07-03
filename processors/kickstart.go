@@ -42,6 +42,6 @@ func CleanUpKickstartFiles() {
 	}
 	err := git.GitCommitFiles("Removed kickstart files")
 	if err != nil {
-		fmt.Printf("An eeror occurred while committing", err)
+		fmt.Printf("An eeror occurred while committing: %v", err)
 	}
 }
