@@ -1,5 +1,3 @@
-
-
 name: Build and Release
 
 on:
@@ -8,9 +6,25 @@ on:
       - "v*.*.*" # Triggers on version tags, e.g., v1.0.0
 
 jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+          check-latest: true
+
+      - name: Run Go Vet
+        run: go vet ./...
+
   build:
     runs-on: ${{ matrix.os }}
-    
+    needs: lint-test # Ensure linting and tests pass before building
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -93,4 +107,3 @@ jobs:
           overwrite: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

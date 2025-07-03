@@ -1,3 +1,5 @@
 /*.zip
 output/
 .idea/*
+./ns8-module-generator
+build/*

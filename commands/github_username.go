@@ -1,10 +1,8 @@
-
 package commands
 
 import (
 	"fmt"
 	"log"
-	"ns8-module-generator/utils"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -16,7 +14,7 @@ type GithubUserName struct {
 	value     string
 }
 
-func InputGithubUsername() {
+func InputGithubUsername() (string, error) {
 	p := tea.NewProgram(githubUsernameInputModel())
 	input, err := p.Run()
 	if err != nil {
@@ -24,13 +22,14 @@ func InputGithubUsername() {
 	}
 	inputModel, ok := input.(GithubUserName)
 	if ok {
-		utils.SetGithubUsername(inputModel.value)
+		return inputModel.value, nil
 	}
+	return "", fmt.Errorf("error reading github username")
 }
 
 func githubUsernameInputModel() GithubUserName {
 	ti := textinput.New()
-	ti.Placeholder = "Github Username"
+	ti.Placeholder = "your-github-username"
 	ti.Focus()
 	ti.CharLimit = 50
 	return GithubUserName{
@@ -49,7 +48,15 @@ func (m GithubUserName) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyEnter:
+			currentValue := m.textInput.Value()
+			if currentValue == "" {
+				m.err = fmt.Errorf("Github username cannot be empty.")
+				return m, nil
+			}
+			m.value = currentValue
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
 			m.value = m.textInput.Value()
 			return m, tea.Quit
 		}

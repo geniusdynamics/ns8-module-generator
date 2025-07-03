@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"ns8-module-generator/config"
 	"ns8-module-generator/processors"
-	"ns8-module-generator/utils"
 	"os"
 
 	"github.com/charmbracelet/bubbles/progress"
@@ -62,12 +62,11 @@ func (m ProgressModel) View() string {
 	return fmt.Sprintf("Downloading template...\n%s", m.progress.View())
 }
 
-func DownloadTemplate() {
+func DownloadTemplate() error {
 	// Fetch the file size
-	resp, err := http.Head(utils.TemplateZipURL)
+	resp, err := http.Head(config.Cfg.TemplateZipURL)
 	if err != nil {
-		fmt.Printf("Failed to get file size: %v\n", err)
-		return
+		return fmt.Errorf("Failed to get file size: %v", err)
 	}
 	defer resp.Body.Close()
 
@@ -79,11 +78,15 @@ func DownloadTemplate() {
 	}
 	p := tea.NewProgram(m)
 
+	errChan := make(chan error, 1)
+
 	// Start downloading and show progress
 	go func() {
-		resp, err := http.Get(utils.TemplateZipURL)
+		defer close(errChan)
+		resp, err := http.Get(config.Cfg.TemplateZipURL)
 		if err != nil {
 			p.Send(errMsg(err))
+			errChan <- fmt.Errorf("Failed to download template: %v", err)
 			return
 		}
 		defer resp.Body.Close()
@@ -91,6 +94,7 @@ func DownloadTemplate() {
 		outFile, err := os.Create("templatezip1.tmp")
 		if err != nil {
 			p.Send(errMsg(err))
+			errChan <- fmt.Errorf("Failed to create temporary file: %v", err)
 			return
 		}
 		defer outFile.Close()
@@ -100,25 +104,29 @@ func DownloadTemplate() {
 		_, err = io.Copy(outFile, progressReader)
 		if err != nil {
 			p.Send(errMsg(err))
+			errChan <- fmt.Errorf("Failed to copy file content: %v", err)
 			return
 		}
 
 		// Rename to final zip file
 		if err := os.Rename("templatezip1.tmp", "templatezip.zip"); err != nil {
 			p.Send(errMsg(err))
+			errChan <- fmt.Errorf("Failed to rename temporary file: %v", err)
 			return
 		}
 
 		// Unzip the files and update directory
 		processors.UnzipFiles("template", "templatezip.zip")
-		utils.SetTemplateDir("template/ns8-generator-module-template-0.0.1")
 		p.Send(progressMsg(1.0)) // Mark as complete
+		errChan <- nil
 	}()
 
 	// Start the Bubble Tea program
 	if _, err := p.Run(); err != nil {
-		fmt.Printf("Error running progress UI: %v\n", err)
+		return fmt.Errorf("Error running progress UI: %v", err)
 	}
+
+	return <-errChan
 }
 
 // ProgressReader implements io.Reader with Bubble Tea progress updates
@@ -137,4 +145,29 @@ func (r *ProgressReader) Read(p []byte) (int, error) {
 	progress := float64(r.ReadSize) / float64(r.TotalSize)
 	r.Program.Send(progressMsg(progress))
 	return n, err
+}
+
+func DownloadFile(url, filePath string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to download file from %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download file from %s: received status code %d", url, resp.StatusCode)
+	}
+
+	out, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to create local file %s: %w", filePath, err)
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to write downloaded content to %s: %w", filePath, err)
+	}
+
+	return nil
 }

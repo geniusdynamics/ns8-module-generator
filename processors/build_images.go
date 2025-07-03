@@ -2,22 +2,22 @@ package processors
 
 import (
 	"fmt"
+	"ns8-module-generator/config"
 	"ns8-module-generator/formatters"
 	"ns8-module-generator/git"
 	"ns8-module-generator/parser"
-	"ns8-module-generator/utils"
 	"strings"
 )
 
 func ProcessBuildImage() error {
 	images := formatters.GetImagesWithRepository()
-	imageName := utils.AppName
+	imageName := config.Cfg.AppName
 	replacers := map[string]string{
 		"{{ IMAGE_NAME }}":   imageName,
 		"{{ GITHUB_OWNER }}": "geniusdynamics",
 		"{{ IMAGES }}":       strings.Join(images, " "),
 	}
-	filePath := utils.OutputDir + "/build-images.sh"
+	filePath := config.Cfg.OutputDir + "/build-images.sh"
 	err := parser.SearchFileAndReplaceContent(filePath, replacers)
 	if err != nil {
 		return fmt.Errorf("error while replacing content in the file: %v", err)

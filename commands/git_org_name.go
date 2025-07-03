@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"log"
-	"ns8-module-generator/utils"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -15,7 +14,7 @@ type GitOrgNameTextInput struct {
 	value     string
 }
 
-func InputGithubOrganizationName() {
+func InputGithubOrganizationName() (string, error) {
 	p := tea.NewProgram(githubTextInputModel())
 	input, err := p.Run()
 	if err != nil {
@@ -23,8 +22,9 @@ func InputGithubOrganizationName() {
 	}
 	inputModel, ok := input.(GitOrgNameTextInput)
 	if ok {
-		utils.SetGithubOrganizationName(inputModel.value)
+		return inputModel.value, nil
 	}
+	return "", fmt.Errorf("an error occurred while reading github organization")
 }
 
 func githubTextInputModel() GitOrgNameTextInput {
@@ -32,6 +32,7 @@ func githubTextInputModel() GitOrgNameTextInput {
 	ti.Placeholder = "Organization Github Username"
 	ti.Focus()
 	ti.CharLimit = 50
+	ti.SetValue("") // Set default value to empty
 	return GitOrgNameTextInput{
 		textInput: ti,
 		err:       nil,
