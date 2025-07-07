@@ -47,19 +47,19 @@ func InputPrompts(cfg *config.Config) error {
 	if err != nil {
 		return err
 	}
+	orgName, err := InputGithubOrganizationName()
+	if err != nil {
+		return err
+	}
+	cfg.GithubOrganizationName = orgName
+	userName, err := InputGithubUsername()
+	if err != nil {
+		return err
+	}
+	cfg.GithubUsername = userName
+
 	cfg.AppGitInit = strings.ToLower(gitApp) == "yes"
 	if cfg.AppGitInit {
-		orgName, err := InputGithubOrganizationName()
-		if err != nil {
-			return err
-		}
-		cfg.GithubOrganizationName = orgName
-		userName, err := InputGithubUsername()
-		if err != nil {
-			return err
-		}
-		cfg.GithubUsername = userName
-
 		authMethod, err := InputGitAuthMethod()
 		if err != nil {
 			return err
