@@ -12,9 +12,15 @@ import (
 func ProcessBuildImage() error {
 	images := formatters.GetImagesWithRepository()
 	imageName := config.Cfg.AppName
+	var githubOwner string
+	if config.Cfg.GithubOrganizationName != "" {
+		githubOwner = config.Cfg.GithubOrganizationName
+	} else {
+		githubOwner = config.Cfg.GithubUsername
+	}
 	replacers := map[string]string{
 		"{{ IMAGE_NAME }}":   imageName,
-		"{{ GITHUB_OWNER }}": "geniusdynamics",
+		"{{ GITHUB_OWNER }}": githubOwner,
 		"{{ IMAGES }}":       strings.Join(images, " "),
 	}
 	filePath := config.Cfg.OutputDir + "/build-images.sh"
