@@ -28,7 +28,7 @@ type Config struct {
 func New() *Config {
 	return &Config{
 		TemplateDir:    "template",
-		TemplateZipURL: "https://github.com/geniusdynamics/ns8-generator-module-template/archive/refs/tags/v0.0.1.zip",
+		TemplateZipURL: "https://github.com/geniusdynamics/ns8-generator-module-template/archive/refs/tags/v0.0.2.zip",
 	}
 }
 
