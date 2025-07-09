@@ -31,7 +31,7 @@ func GenerateNS8VolumeFlags(volumes []map[string]string) string {
 		}
 
 		volumeName := source
-		formattedVolume += fmt.Sprintf(" --volume %s", volumeString)
+		formattedVolume += fmt.Sprintf(" --volume %s:Z", volumeString)
 
 		err := AddToBackup(config.Cfg.OutputDir+"/imageroot/etc/state-include.conf",
 			fmt.Sprintf("volumes/%s", cleanVolumeName(volumeName)),
