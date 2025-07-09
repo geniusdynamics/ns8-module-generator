@@ -90,7 +90,7 @@ func (m FilePicker) View() string {
 
 func PickFile() (string, error) {
 	fp := filepicker.New()
-	fp.AllowedTypes = []string{".yaml"}
+	fp.AllowedTypes = []string{".yaml", ".yml"}
 	fp.CurrentDirectory, _ = os.UserHomeDir()
 
 	m := FilePicker{
