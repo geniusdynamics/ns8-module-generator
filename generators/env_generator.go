@@ -27,7 +27,6 @@ func GenerateEnvFileContents(
 	// Close the env config
 	envConfig += "} \n"
 
-
 	// write to env file
 	envConfig += fmt.Sprintf("agent.write_envfile(\"%s.env\", %s)", imageName, imageName)
 	// Check if file Exists
@@ -55,7 +54,7 @@ func GenerateEnvFileContents(
 	}
 
 	println("New file content added")
-	envFileFlags := " --env " + imageName + ".env"
+	envFileFlags := " --env-file " + imageName + ".env"
 
 	// Add ENV to back up
 	err = AddToBackup(
@@ -82,8 +81,6 @@ func GenerateEnvFileContents(
 	return envFileFlags, nil
 }
 
-
-
 func GenerateGetConfigurationContent(
 	imageName string,
 	enviroments map[string]string,
@@ -103,9 +100,10 @@ func GenerateGetConfigurationContent(
 			fmt.Sprintf("\tconfig[\"%s\"] = data.get(\"%s\", \"%s\") \n", key, key, value),
 		)
 	}
-	// Write the else part to return an empty string
-	config.WriteString("else: \n")
-
+	if len(enviroments) > 0 {
+		// Write the else part to return an empty string
+		config.WriteString("else: \n")
+	}
 	// Loop thru the enviroments
 	for key, value := range enviroments {
 		// Add empty string
