@@ -1,5 +1,4 @@
 name: Build and Release
-
 on:
   push:
     tags:
@@ -8,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -17,14 +15,17 @@ jobs:
             GOOS: linux
             GOARCH: amd64
             EXT: ""
+            BINARY_NAME: ns8-module-generator-linux-amd64
           - os: windows-latest
             GOOS: windows
             GOARCH: amd64
             EXT: .exe
+            BINARY_NAME: ns8-module-generator-windows-amd64.exe
           - os: macos-latest
             GOOS: darwin
             GOARCH: amd64
             EXT: ""
+            BINARY_NAME: ns8-module-generator-darwin-amd64
 
     steps:
       - name: Checkout code
@@ -38,24 +39,20 @@ jobs:
 
       - name: Build
         run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            go build -o ns8-module-generator.exe
-          else
-            GOOS=${{ matrix.GOOS }} GOARCH=${{ matrix.GOARCH }} go build -o ns8-module-generator${{ matrix.EXT }}
-          fi
+          GOOS=${{ matrix.GOOS }} GOARCH=${{ matrix.GOARCH }} go build -o ${{ matrix.BINARY_NAME }}
         shell: bash
 
       - name: Archive the binaries
         run: |
           mkdir -p release
-          mv ns8-module-generator${{ matrix.EXT }} release/
+          mv ${{ matrix.BINARY_NAME }} release/
 
       - name: Upload Release Assets
         uses: actions/upload-artifact@v4
         with:
           name: binaries-${{ matrix.os }}
           path: release/*
-          retention-days: 1 # Keep artifacts for 1 day (adjust if needed)
+          retention-days: 1
 
   release:
     runs-on: ubuntu-latest
@@ -68,25 +65,27 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: binaries-ubuntu-latest
-          path: release/linux
+          path: release/
 
       - name: Download Artifacts (Windows)
         uses: actions/download-artifact@v4
         with:
           name: binaries-windows-latest
-          path: release/windows
+          path: release/
 
       - name: Download Artifacts (MacOS)
         uses: actions/download-artifact@v4
         with:
           name: binaries-macos-latest
-          path: release/macos
+          path: release/
 
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          files: release/**/*
+          files: release/*
+          generate_release_notes: true
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
