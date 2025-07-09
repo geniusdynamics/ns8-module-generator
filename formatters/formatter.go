@@ -41,10 +41,16 @@ func FormatImageNames() []string {
 		nameParts := strings.Split(imageName, "/")
 		var formattedName string
 		if len(nameParts) > 1 {
-			formattedName = strings.ToUpper(nameParts[len(nameParts)-1]) + ImageSuffix
+			part := strings.ToUpper(nameParts[len(nameParts)-1])
+			cleanParts := strings.Split(part, "-")
+
+			formattedName = strings.Join(cleanParts, "_") + ImageSuffix
 		} else {
-			formattedName = strings.ToUpper(imageName) + ImageSuffix
+			part := strings.ToUpper(imageName)
+			cleanParts := strings.Split(part, "-")
+			formattedName = strings.Join(cleanParts, "_") + ImageSuffix
 		}
+		// Check for -
 		formattedImages = append(formattedImages, formattedName)
 	}
 	return formattedImages
@@ -68,8 +74,10 @@ func StripImageName(imageName string) string {
 
 // Return Image Name with suffix of _IMAGE
 func ImageNameWithSuffix(imageName string) string {
+	cleanParts := strings.Split(StripImageName(imageName), "-")
+
 	// Name in UPPERCASE
-	return strings.ToUpper(StripImageName(imageName)) + ImageSuffix
+	return strings.ToUpper(strings.Join(cleanParts, "_")) + ImageSuffix
 }
 
 func GetImagesCompatibleServiceNames() []string {
