@@ -18,13 +18,13 @@ type Images struct {
 }
 
 type Service struct {
-	Name            string
-	Image           string      `yaml:"image"`
-	Environment     yaml.Node   `yaml:"environment"`
+	Name              string
+	Image             string    `yaml:"image"`
+	Environment       yaml.Node `yaml:"environment"`
 	ParsedEnvironment map[string]string
-	DependsOn       interface{} `yaml:"depends_on,omitempty"`
-	Volumes         yaml.Node   `yaml:"volumes,omitempty"` // Change to yaml.Node
-	ParsedVolumes   []map[string]string // New field for parsed volumes
+	DependsOn         interface{}         `yaml:"depends_on,omitempty"`
+	Volumes           yaml.Node           `yaml:"volumes,omitempty"` // Change to yaml.Node
+	ParsedVolumes     []map[string]string // New field for parsed volumes
 }
 
 func (s *Service) UnmarshalYAML(node *yaml.Node) error {
@@ -81,8 +81,6 @@ func (s *Service) UnmarshalYAML(node *yaml.Node) error {
 
 	return nil
 }
-
-
 
 // Global variable to hold the images
 var (
@@ -147,9 +145,6 @@ func ParseVolumeContents(volume map[string]interface{}) {
 	}
 }
 
-func serviceImages() {
-}
-
 func ParseNetworkContents(network map[string]interface{}) {
 	for key, value := range network {
 		println("Network: ", key)
@@ -161,4 +156,3 @@ func ParseNetworkContents(network map[string]interface{}) {
 func GetImages() []string {
 	return images.Images
 }
-
