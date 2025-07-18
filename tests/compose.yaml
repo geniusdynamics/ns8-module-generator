@@ -70,6 +70,7 @@ services:
       soketi:
         condition: service_healthy
   postgres:
+    image: postgres:15
     volumes:
       - coolify-db:/var/lib/postgresql/data
     environment:
@@ -88,6 +89,7 @@ services:
       retries: 10
       timeout: 2s
   redis:
+    image: redis:7
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     environment:
       REDIS_PASSWORD: "${REDIS_PASSWORD}"

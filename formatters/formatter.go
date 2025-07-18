@@ -56,7 +56,6 @@ func FormatImageNames() []string {
 	return formattedImages
 }
 
-// This returns a single image name without the : eg documenso/documenso:latest returns ducumenso
 func StripImageName(imageName string) string {
 	// Split Parts by Colon
 	parts := strings.Split(imageName, ":")
