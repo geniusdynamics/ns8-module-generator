@@ -197,15 +197,34 @@ func GenerateServicesFiles(allServices string) {
 		return
 	}
 	for _, service := range *parser.GetServices() {
-		// fmt.Printf("Name Of Service: %v\n", service.Name)
-		// fmt.Printf("Enviroment : %v \n", service.Environment)
-		env, err := generators.GenerateEnvFileContents(
-			service.Name,
-			service.ParsedEnvironment,
-			config.Cfg.OutputDir+"/imageroot/actions/configure-module/10configure_environment_vars",
-		)
+		var envPath string
+		if generators.IsCommonDatabaseImage(service.Image) {
+			envPath = config.Cfg.OutputDir + "/imageroot/actions/create-module/10configure_environment_vars"
+		} else {
+			envPath = config.Cfg.OutputDir + "/imageroot/actions/configure-module/10configure_environment_vars"
+		}
+
+		// Generate environment file contents
+		env, err := generators.GenerateEnvFileContents(service.Name, service.ParsedEnvironment, envPath)
+		cleanEnv := strings.TrimSpace(strings.TrimPrefix(env, "--env-file"))
+
+		if generators.IsCommonDatabaseImage(service.Image) {
+			restore, backup, clean := generators.GenerateBackupRestore(
+				formatters.ImageNameWithSuffix(service.Image),
+				service.Name,
+				cleanEnv,
+				service.Name,
+			)
+			fmt.Print("Restore: ", restore)
+			fmt.Print("Backup:", backup)
+			fmt.Print("Clean: ", clean)
+			generators.WriteToFile(config.Cfg.OutputDir+"/imageroot/actions/restore-module/40restore_database", restore, "feat: added Restore")
+			generators.WriteToFile(config.Cfg.OutputDir+"/imageroot/bin/module-dump-state", backup, "feat: added backup")
+			generators.WriteToFile(config.Cfg.OutputDir+"/imageroot/bin/module-cleanup-state", clean, "feat: added clean up")
+		}
 		if err != nil {
-			fmt.Printf("An error occurred: %v", err)
+			fmt.Printf("Failed to generate env file for service %s: %v\n", service.Name, err)
+			return
 		}
 		replacers := map[string]string{
 			"{{ SERVICE_NAME }}":      service.Name + "-app",
