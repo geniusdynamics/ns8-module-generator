@@ -4,11 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
+	"strings"
+
 	"ns8-module-generator/commands"
 	"ns8-module-generator/config"
 	"ns8-module-generator/http"
 	"ns8-module-generator/processors"
-	"os"
 )
 
 func main() {
@@ -56,8 +58,11 @@ func main() {
 
 	var composeFileContent []byte
 	if cfg.IsRemoteDockerCompose {
+		if strings.Contains(cfg.DockerComposePath, "github.com") {
+			cfg.DockerComposePath = convertToGithubBlobToRaw(cfg.DockerComposePath)
+		}
 		// Download the file from the URL to a temporary file
-		tempFile, err := os.CreateTemp("", "remote-docker-compose-*.yaml")
+		tempFile, err := os.Create("remote.yaml")
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error creating temporary file for remote Docker Compose: %v\n", err)
 			os.Exit(1)
@@ -95,4 +100,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error processing NS8 module: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+func convertToGithubBlobToRaw(blobURL string) string {
+	rawURL := strings.Replace(blobURL, "github.com", "raw.githubusercontent.com", 1)
+	rawURL = strings.Replace(rawURL, "/blob", "", 1)
+	return rawURL
 }

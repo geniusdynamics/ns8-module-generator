@@ -3,8 +3,9 @@ package git
 import (
 	"context"
 	"fmt"
-	"ns8-module-generator/config"
 	"strings"
+
+	"ns8-module-generator/config"
 
 	"github.com/google/go-github/v66/github"
 )

@@ -2,13 +2,15 @@ package git
 
 import (
 	"fmt"
-	"ns8-module-generator/config"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"ns8-module-generator/config"
+
 	"github.com/go-git/go-git/v5"
 	gitConfig "github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 )
@@ -17,20 +19,26 @@ func InitializeGit() error {
 	// Get Output path
 	outputPath := config.Cfg.OutputDir
 	// Initialize git repo
+
 	r, err := git.PlainInit(outputPath, false)
 	config.Cfg.GitLocalRepo = r
 	// Check Err
 	if err != nil {
-		return fmt.Errorf("An Error occurred while initializing repository: %s", err)
+		return fmt.Errorf("an Error occurred while initializing repository: %s", err)
 	}
 
+	headRefs := plumbing.NewSymbolicReference(plumbing.HEAD, plumbing.NewBranchReferenceName("main"))
+
+	if err := r.Storer.SetReference(headRefs); err != nil {
+		return fmt.Errorf("failed to set HEAD to main: %w", err)
+	}
 	// Get working tree
 	worktree, err := r.Worktree()
 	if err != nil {
-		return fmt.Errorf("An error occurred while getting work tree: %v", err)
+		return fmt.Errorf("an error occurred while getting work tree: %v", err)
 	} // Debugging: Ensure worktree is not nil
 	if worktree == nil {
-		return fmt.Errorf("Failed to get worktree: worktree is nil")
+		return fmt.Errorf("failed to get worktree: worktree is nil")
 	}
 	// Set the working tree
 	config.Cfg.GitWorkTree = worktree
@@ -109,6 +117,7 @@ func GitPushToRemote() error {
 			return fmt.Errorf("An error occurred while setting up SSH authentication: %v", err)
 		}
 		pushOptions.Auth = auth
+		fmt.Println("Pushing using SSH authentication...")
 	} else {
 		pushOptions.Auth = &http.BasicAuth{
 			Username: config.Cfg.GithubToken,
@@ -145,9 +154,11 @@ func sshAuth() (ssh.AuthMethod, error) {
 	for _, keyPath := range keyPaths {
 		if _, err := os.Stat(keyPath); err == nil {
 			publicKeys, err := ssh.NewPublicKeysFromFile("git", keyPath, "")
-			if err == nil {
-				return publicKeys, nil
+			if err != nil {
+				fmt.Printf("Failed to load SSH key from %s: %v\n", keyPath, err)
+				continue // Try next key if loading fails
 			}
+			return publicKeys, nil
 		}
 	}
 
